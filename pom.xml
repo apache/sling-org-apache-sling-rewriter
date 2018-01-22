@@ -29,7 +29,6 @@
 
     <artifactId>org.apache.sling.rewriter</artifactId>
     <version>1.2.3-SNAPSHOT</version>
-    <packaging>bundle</packaging>
 
     <name>Apache Sling Rewriter</name>
     <description>
@@ -51,8 +50,12 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-baseline-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.sling</groupId>
@@ -66,19 +69,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-Category>sling</Bundle-Category>
-                        <Import-Package>
-                            org.apache.cocoon.components.serializers.util;resolution:=optional,*
-                        </Import-Package>
-                    </instructions>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
