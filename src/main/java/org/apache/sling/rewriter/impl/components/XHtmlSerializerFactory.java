@@ -45,7 +45,7 @@ public class XHtmlSerializerFactory implements SerializerFactory {
     }
 
     /**
-     * <p>A pedantinc XHTML serializer encoding all recognized entities with their
+     * <p>A pedantic XHTML serializer encoding all recognized entities with their
      * proper HTML names.</p>
      *
      * <p>For configuration options of this serializer, please look at the
