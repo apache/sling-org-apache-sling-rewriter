@@ -242,9 +242,11 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
             pw.print("        ");
             printConfiguration(pw, this.generatorConfiguration);
             pw.println("    Transformers : ");
-            for(int i=0; i<this.transformerConfigurations.length; i++) {
-                pw.print("        ");
-                printConfiguration(pw, this.transformerConfigurations[i]);
+            if ( this.transformerConfigurations != null ) {
+                for (int i = 0; i < this.transformerConfigurations.length; i++) {
+                    pw.print("        ");
+                    printConfiguration(pw, this.transformerConfigurations[i]);
+                }
             }
             pw.println("    Serializer : ");
             pw.print("        ");
