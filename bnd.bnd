@@ -12,12 +12,8 @@ Import-Package:\
   org.apache.cocoon.components.serializers.util;resolution:=optional,\
   *
 
--baseline: *
-
 -exportcontents: ${packages;VERSIONED}
 
 -removeheaders:\
-  Embed-Dependency,\
-  Embed-Transitive,\
   Include-Resource,\
   Private-Package
