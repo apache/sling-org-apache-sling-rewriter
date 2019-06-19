@@ -32,7 +32,7 @@
 
     <name>Apache Sling Rewriter</name>
     <description>
-        The Apache Sling rewriter allows configurable post processing of any output
+        The Apache Sling Rewriter allows configurable post processing of any output
         from Apache Sling. The output can be processed by a configurable processor
         or a configurable pipeline.
     </description>
