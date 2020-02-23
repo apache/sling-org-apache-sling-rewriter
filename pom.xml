@@ -44,7 +44,7 @@
     </scm>
 
     <properties>
-        <org.ops4j.pax.exam.version>4.13.1</org.ops4j.pax.exam.version>
+        <org.ops4j.pax.exam.version>4.13.2</org.ops4j.pax.exam.version>
     </properties>
 
     <build>
