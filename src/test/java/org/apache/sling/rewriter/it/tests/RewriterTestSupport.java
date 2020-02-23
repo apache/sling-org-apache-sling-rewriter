@@ -37,6 +37,7 @@ import static org.apache.sling.testing.paxexam.SlingOptions.slingScriptingJavasc
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.cm.ConfigurationAdminOptions.factoryConfiguration;
 
 public abstract class RewriterTestSupport extends TestSupport {
@@ -53,7 +54,7 @@ public abstract class RewriterTestSupport extends TestSupport {
 
     @Configuration
     public Option[] configuration() {
-        return new Option[]{
+        return options(
             baseConfiguration(),
             quickstart(),
             // Sling Rewriter
@@ -70,7 +71,7 @@ public abstract class RewriterTestSupport extends TestSupport {
             mavenBundle().groupId("org.apache.servicemix.bundles").artifactId("org.apache.servicemix.bundles.hamcrest").versionAsInProject(),
             slingResourcePresence(),
             junitBundles()
-        };
+        );
     }
 
     @ProbeBuilder
