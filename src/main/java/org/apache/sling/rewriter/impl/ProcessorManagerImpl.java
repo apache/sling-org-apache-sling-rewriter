@@ -69,28 +69,21 @@ public class ProcessorManagerImpl
 
     protected static final String MIME_TYPE_HTML = "text/html";
 
-    /** The logger */
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    /** The bundle context. */
     private BundleContext bundleContext;
 
     @Reference
     private ResourceResolverFactory resourceResolverFactory;
 
-    /** loaded processor configurations */
     private final Map<String, ConfigEntry[]> processors = new HashMap<>();
 
-    /** Ordered processor configurations. */
     private List<ProcessorConfiguration> orderedProcessors = new ArrayList<>();
 
-    /** Event handler registration */
     private volatile ServiceRegistration<ResourceChangeListener> eventHandlerRegistration;
 
-    /** Search path */
     private String[] searchPath;
 
-    /** The factory cache. */
     private FactoryCache factoryCache;
 
     /**
@@ -98,24 +91,24 @@ public class ProcessorManagerImpl
      * @param ctx
      */
     @Activate
-	protected void activate(final BundleContext ctx)
+    protected void activate(final BundleContext ctx)
     throws LoginException, InvalidSyntaxException {
         this.bundleContext = ctx;
         this.factoryCache = new FactoryCache(this.bundleContext);
 
         // create array of search paths for actions and constraints
         this.searchPath = this.initProcessors();
-    	// register event handler
-		final Dictionary<String, Object> props = new Hashtable<>();
-		props.put(ResourceChangeListener.CHANGES,
-				new String[] { ChangeType.ADDED.toString(), ChangeType.CHANGED.toString(),
-						ChangeType.REMOVED.toString(), ChangeType.PROVIDER_ADDED.toString(), ChangeType.PROVIDER_REMOVED.toString() });
-		props.put(ResourceChangeListener.PATHS, "glob:*" + CONFIG_PATH + "/**");
-		props.put("service.description", "Processor Configuration/Modification Handler");
-		props.put("service.vendor", "The Apache Software Foundation");
-		this.eventHandlerRegistration = this.bundleContext.registerService(ResourceChangeListener.class, this,
-				props);
-    	this.factoryCache.start();
+        // register event handler
+        final Dictionary<String, Object> props = new Hashtable<>();
+        props.put(ResourceChangeListener.CHANGES,
+            new String[] { ChangeType.ADDED.toString(), ChangeType.CHANGED.toString(),
+            ChangeType.REMOVED.toString(), ChangeType.PROVIDER_ADDED.toString(), ChangeType.PROVIDER_REMOVED.toString() });
+        props.put(ResourceChangeListener.PATHS, "glob:*" + CONFIG_PATH + "/**");
+        props.put("service.description", "Processor Configuration/Modification Handler");
+        props.put("service.vendor", "The Apache Software Foundation");
+        this.eventHandlerRegistration = this.bundleContext.registerService(ResourceChangeListener.class, this,
+            props);
+        this.factoryCache.start();
 
         WebConsoleConfigPrinter.register(this.bundleContext, this);
     }
@@ -142,12 +135,12 @@ public class ProcessorManagerImpl
     }
 
     @Override
-	public void onChange(final List<ResourceChange> changes) {
-    	for(final ResourceChange change : changes){
-    		// check if the event handles something in the search paths
+    public void onChange(final List<ResourceChange> changes) {
+        for ( final ResourceChange change : changes ) {
+            // check if the event handles something in the search paths
             String path = change.getPath();
             int foundPos = -1;
-            for(final String sPath : this.searchPath) {
+            for ( final String sPath : this.searchPath ) {
                 if ( path.startsWith(sPath) ) {
                     foundPos = sPath.length();
                     break;
@@ -195,16 +188,13 @@ public class ProcessorManagerImpl
                 };
                 t.start();
             }
-    	}
+        }
 
     }
 
-    /**
-     * Initializes the current processors
-     */
     private synchronized String[] initProcessors() throws LoginException {
         try ( final ResourceResolver resolver = this.createResourceResolver()) {
-            for(final String path : resolver.getSearchPath() ) {
+            for ( final String path : resolver.getSearchPath() ) {
                 // check if the search path exists
                 final Resource spResource = resolver.getResource(path.substring(0, path.length() - 1));
                 if ( spResource != null ) {
@@ -232,17 +222,11 @@ public class ProcessorManagerImpl
         }
     }
 
-    /**
-     * Read the configuration for the processor from the repository.
-     */
     private ProcessorConfigurationImpl getProcessorConfiguration(final Resource configResource) {
         final ProcessorConfigurationImpl config = new ProcessorConfigurationImpl(configResource);
         return config;
     }
 
-    /**
-     * adds a processor configuration
-     */
     protected void addProcessor(final String key, final String configPath, final ProcessorConfigurationImpl config) {
         ConfigEntry[] configs = this.processors.get(key);
         if ( configs == null ) {
@@ -278,9 +262,9 @@ public class ProcessorManagerImpl
         pw.println("Active Configurations");
         pw.println("-----------------------------------------------------------------");
         // we process the configs in their order
-        for(final ProcessorConfiguration config : this.orderedProcessors) {
+        for ( final ProcessorConfiguration config : this.orderedProcessors ) {
             // search the corresponding full config
-            for(final Map.Entry<String, ConfigEntry[]> entry : this.processors.entrySet()) {
+            for ( final Map.Entry<String, ConfigEntry[]> entry : this.processors.entrySet() ) {
                 if ( entry.getValue().length > 0 && entry.getValue()[0].config == config ) {
                     pw.print("Configuration ");
                     pw.println(entry.getKey());
@@ -288,7 +272,7 @@ public class ProcessorManagerImpl
                     printConfiguration(pw, entry.getValue()[0]);
                     if ( entry.getValue().length > 1 ) {
                         pw.println("Overriding configurations from the following resource paths: ");
-                        for(int i=1; i < entry.getValue().length; i++) {
+                        for( int i=1; i < entry.getValue().length; i++ ) {
                             pw.print("- ");
                             pw.println(entry.getValue()[i].path);
                         }
@@ -301,15 +285,12 @@ public class ProcessorManagerImpl
         }
     }
 
-    /**
-     * updates a processor
-     */
     private synchronized void updateProcessor(final String path) {
         final int pos = path.lastIndexOf('/');
         final String key = path.substring(pos + 1);
         int keyIndex = 0;
         // search the search path
-        for(final String sp : this.searchPath) {
+        for ( final String sp : this.searchPath ) {
             if ( path.startsWith(sp) ) {
                 break;
             }
@@ -327,7 +308,7 @@ public class ProcessorManagerImpl
             if ( configs != null ) {
                 // search path
                 int index = -1;
-                for(int i=0; i<configs.length; i++) {
+                for ( int i=0; i<configs.length; i++ ) {
                     if ( configs[i].path.equals(path) ) {
                         index = i;
                         break;
@@ -354,7 +335,7 @@ public class ProcessorManagerImpl
                     while ( !found && insertIndex < configs.length) {
                         final ConfigEntry current = configs[insertIndex];
                         int currentIndex = -1;
-                        for(int i=0; i<searchPath.length; i++) {
+                        for ( int i=0; i<searchPath.length; i++ ) {
                             if ( current.path.startsWith(searchPath[i]) ) {
                                 currentIndex = i;
                                 break;
@@ -372,7 +353,7 @@ public class ProcessorManagerImpl
                     } else {
                         ConfigEntry[] newArray = new ConfigEntry[configs.length + 1];
                         int i = 0;
-                        for(final ConfigEntry current : configs) {
+                        for( final ConfigEntry current : configs ) {
                             if ( i == insertIndex ) {
                                 newArray[i] = new ConfigEntry(path, config);
                                 i++;
@@ -400,9 +381,6 @@ public class ProcessorManagerImpl
         }
     }
 
-    /**
-     * removes a pipeline
-     */
     private synchronized void removeProcessor(final String path) {
         final int pos = path.lastIndexOf('/');
         final String key = path.substring(pos + 1);
@@ -412,7 +390,7 @@ public class ProcessorManagerImpl
         if ( configs != null ) {
             // search path
             ConfigEntry found = null;
-            for(final ConfigEntry current : configs) {
+            for ( final ConfigEntry current : configs ) {
                 if ( current.path.equals(path) ) {
                     found = current;
                     break;
@@ -429,7 +407,7 @@ public class ProcessorManagerImpl
                     }
                     ConfigEntry[] newArray = new ConfigEntry[configs.length - 1];
                     int index = 0;
-                    for(final ConfigEntry current : configs) {
+                    for ( final ConfigEntry current : configs ) {
                         if ( current != found ) {
                             newArray[index] = current;
                             index++;
@@ -444,14 +422,14 @@ public class ProcessorManagerImpl
     private synchronized void checkRemoval(final String path) {
         final String prefix = path + "/";
         final List<ConfigEntry> toRemove = new ArrayList<>();
-        for(final Map.Entry<String, ConfigEntry[]> entry : this.processors.entrySet()) {
-            for(final ConfigEntry config : entry.getValue()) {
+        for( final Map.Entry<String, ConfigEntry[]> entry : this.processors.entrySet() ) {
+            for( final ConfigEntry config : entry.getValue() ) {
                 if ( config.path != null && config.path.startsWith(prefix) ) {
                     toRemove.add(config);
                 }
             }
         }
-        for(final ConfigEntry entry : toRemove) {
+        for ( final ConfigEntry entry : toRemove ) {
             this.removeProcessor(entry.path);
         }
     }
