@@ -68,6 +68,7 @@ public abstract class RewriterTestSupport extends TestSupport {
                 .asOption(),
             // testing
             mavenBundle().groupId("org.jsoup").artifactId("jsoup").versionAsInProject(),
+            mavenBundle().groupId("org.apache.cocoon").artifactId("cocoon-serializers-charsets").versionAsInProject(),
             mavenBundle().groupId("org.apache.servicemix.bundles").artifactId("org.apache.servicemix.bundles.hamcrest").versionAsInProject(),
             slingResourcePresence(),
             junitBundles()
