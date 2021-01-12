@@ -22,11 +22,9 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 
 import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.apache.sling.rewriter.ProcessingComponentConfiguration;
 import org.apache.sling.rewriter.ProcessingContext;
 import org.apache.sling.rewriter.impl.ProcessingComponentConfigurationImpl;
 import org.junit.Before;
@@ -55,18 +53,6 @@ public class Html5SerializerTest {
         testSerializer.init(context, config);
     }
 
-    @Test
-    public void testInvalidCharset() throws IOException {
-        Html5Serializer serializer = new Html5Serializer();
-        ProcessingComponentConfiguration invalidConfig = new ProcessingComponentConfigurationImpl("/apps/config",
-                new ValueMapDecorator(Collections.singletonMap("encoding", "NOT-VALID-99")));
-        try {
-            serializer.init(context, invalidConfig);
-            fail();
-        } catch (UnsupportedEncodingException | IllegalArgumentException e) {
-            // caught expected exception
-        }
-    }
 
     @Test
     public void testNoWriter() throws IOException {

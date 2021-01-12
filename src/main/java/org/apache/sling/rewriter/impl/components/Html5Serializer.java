@@ -18,15 +18,11 @@ package org.apache.sling.rewriter.impl.components;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.cocoon.components.serializers.encoding.Charset;
-import org.apache.cocoon.components.serializers.encoding.CharsetFactory;
-import org.apache.cocoon.components.serializers.encoding.Encoder;
-import org.apache.cocoon.components.serializers.encoding.HTMLEncoder;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.sling.rewriter.ProcessingComponentConfiguration;
 import org.apache.sling.rewriter.ProcessingContext;
 import org.apache.sling.rewriter.Serializer;
@@ -58,16 +54,16 @@ public class Html5Serializer implements Serializer {
     }
     private PrintWriter writer;
 
-    private Charset charset;
-
-    private Encoder encoder;
-
     @Override
     public void characters(char[] buffer, int offset, int length) throws SAXException {
         if (length == 0) {
             writer.flush();
         } else {
-            writeEncoded(buffer, offset, length);
+            if (offset < 0 || offset + length > buffer.length) {
+                throw new SAXException("Offset / length out of bounds");
+            }
+            writer.write(
+                    StringEscapeUtils.escapeHtml4(new String(Arrays.copyOfRange(buffer, offset, offset + length))));
         }
     }
 
@@ -107,9 +103,6 @@ public class Html5Serializer implements Serializer {
         } else {
             writer = context.getWriter();
         }
-        this.charset = CharsetFactory.newInstance()
-                .getCharset(config.getConfiguration().get("encoding", StandardCharsets.UTF_8.name()));
-        this.encoder = new HTMLEncoder();
     }
 
     @Override
@@ -151,8 +144,7 @@ public class Html5Serializer implements Serializer {
 
             writer.write(CHAR_EQ);
             writer.write(CHAR_QT);
-            char[] data = value.toCharArray();
-            this.writeEncoded(data, 0, data.length);
+            writer.write(StringEscapeUtils.escapeHtml4(value));
             writer.write(CHAR_QT);
         }
 
@@ -182,40 +174,6 @@ public class Html5Serializer implements Serializer {
     @Override
     public void startPrefixMapping(String s, String s1) throws SAXException {
         // Nothing required
-    }
-
-    /**
-     * Encode and write a specific part of an array of characters.
-     */
-    private void writeEncoded(char[] data, int start, int length) throws SAXException {
-        int end = start + length;
-
-        if (data == null) {
-            throw new SAXException("Invalid data, null");
-        }
-        if ((start < 0) || (start > data.length) || (length < 0) || (end > data.length) || (end < 0)) {
-            throw new SAXException("Invalid data, out of bounds");
-        }
-        if (length == 0) {
-            return;
-        }
-
-        for (int i = start; i < end; i++) {
-            char c = data[i];
-
-            if (this.charset.allows(c) && this.encoder.allows(c)) {
-                continue;
-            }
-
-            if (start != i) {
-                writer.write(data, start, i - start);
-            }
-            writer.write(this.encoder.encode(c));
-            start = i + 1;
-        }
-        if (start != end) {
-            writer.write(data, start, end - start);
-        }
     }
 
 }
