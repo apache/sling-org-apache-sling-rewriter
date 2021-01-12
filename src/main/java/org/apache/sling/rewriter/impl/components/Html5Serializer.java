@@ -176,10 +176,7 @@ public class Html5Serializer implements Serializer {
         if ("br".equals(localName) && ("clear".equals(atts.getLocalName(i)))) {
             return true;
         }
-        if (atts.getValue(i) == null) {
-            return true;
-        }
-        return false;
+        return atts.getValue(i) == null;
     }
 
     @Override
@@ -190,7 +187,7 @@ public class Html5Serializer implements Serializer {
     /**
      * Encode and write a specific part of an array of characters.
      */
-    private void writeEncoded(char data[], int start, int length) throws SAXException {
+    private void writeEncoded(char[] data, int start, int length) throws SAXException {
         int end = start + length;
 
         if (data == null) {
