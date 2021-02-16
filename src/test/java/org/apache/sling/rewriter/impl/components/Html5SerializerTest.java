@@ -17,6 +17,7 @@
 package org.apache.sling.rewriter.impl.components;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -52,7 +53,6 @@ public class Html5SerializerTest {
         testSerializer = new Html5Serializer();
         testSerializer.init(context, config);
     }
-
 
     @Test
     public void testNoWriter() throws IOException {
@@ -110,7 +110,7 @@ public class Html5SerializerTest {
     @Test
     public void testStartDocument() throws IOException, SAXException {
         testSerializer.startDocument();
-        assertEquals("<!DOCTYPE html>\n", writer.toString());
+        assertEquals("<!DOCTYPE html>" + System.lineSeparator(), writer.toString());
     }
 
     @Test
