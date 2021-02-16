@@ -110,7 +110,7 @@ public class Html5SerializerTest {
     @Test
     public void testStartDocument() throws IOException, SAXException {
         testSerializer.startDocument();
-        assertEquals("<!DOCTYPE html>\n", writer.toString());
+        assertEquals("<!DOCTYPE html>\\r\\n?|\\n", writer.toString());
     }
 
     @Test
