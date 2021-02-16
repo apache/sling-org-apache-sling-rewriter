@@ -53,7 +53,6 @@ public class Html5SerializerTest {
         testSerializer.init(context, config);
     }
 
-
     @Test
     public void testNoWriter() throws IOException {
         Html5Serializer serializer = new Html5Serializer();
@@ -110,7 +109,7 @@ public class Html5SerializerTest {
     @Test
     public void testStartDocument() throws IOException, SAXException {
         testSerializer.startDocument();
-        assertEquals("<!DOCTYPE html>\\r\\n?|\\n", writer.toString());
+        assertTrue(writer.toString().matches("<!DOCTYPE html>\\r\\n?|\\n"));
     }
 
     @Test
