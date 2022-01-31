@@ -62,7 +62,7 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
     @Override
     public Object addingService(ServiceReference reference) {
         final boolean isGlobal = isGlobal(reference);
-        LOGGER.debug("Adding service {}, isGlobal={}", reference, isGlobal);
+        LOGGER.debug("Adding service {}, isGlobal={}", reference.getClass(), isGlobal);
         if ( isGlobal ) {
             synchronized (this) {
                 this.cacheIsValid = false;
@@ -81,7 +81,7 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
     @Override
     public void removedService(ServiceReference reference, Object service) {
         final boolean isGlobal = isGlobal(reference);
-        LOGGER.debug("Removing service {}, isGlobal={}", reference, isGlobal);
+        LOGGER.debug("Removing service {}, isGlobal={}", reference.getClass(), isGlobal);
         if ( isGlobal ) {
             synchronized (this) {
                 this.cacheIsValid = false;
@@ -99,7 +99,7 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
             synchronized ( this ) {
                 if ( !this.cacheIsValid ) {
                     final ServiceReference[] refs = this.getServiceReferences();
-                    LOGGER.debug("Found {} service references={}", refs.length, refs);
+                    LOGGER.debug("Found {} service references", refs.length);
                     if ( refs == null || refs.length == 0 ) {
                         this.cached = EMPTY_DOUBLE_ENTRY_ARRAY;
                     } else {
@@ -133,10 +133,10 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
                         for(final ServiceReference ref : refs) {
                             if ( isGlobal(ref) ) {
                                 if ( index < preCount ) {
-                                    LOGGER.debug("Initializing pre TransformerFactory for service ref: {}", ref);
+                                    LOGGER.debug("Initializing pre global TransformerFactory for service ref: {}", ref.getClass());
                                     globalFactories[0][index] = new TransformerFactoryEntry((TransformerFactory) this.getService(ref), ref);
                                 } else {
-                                    LOGGER.debug("Initializing post TransformerFactory for service ref: {}", ref);
+                                    LOGGER.debug("Initializing post global TransformerFactory for service ref: {}", ref.getClass());
                                     globalFactories[1][index - preCount] = new TransformerFactoryEntry((TransformerFactory) this.getService(ref), ref);
                                 }
                                 index++;
