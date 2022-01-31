@@ -69,9 +69,9 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
                 this.cacheIsValid = false;
             }
             obj = super.addingService(reference);
-        }
-        if ( obj == null && isGlobal ) {
-            obj = this.context.getService(reference);
+            if ( obj == null && isGlobal ) {
+                obj = this.context.getService(reference);
+            }
         }
         return obj;
     }
