@@ -25,8 +25,12 @@ import org.apache.sling.rewriter.impl.FactoryCache.TransformerFactoryEntry;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCustomizer<T> {
+
+    private final Logger LOGGER = LoggerFactory.getLogger(TransformerFactoryServiceTracker.class);
 
     private String getMode(final ServiceReference ref) {
         final String mode = (String) ref.getProperty(FactoryCache.PROPERTY_MODE);
@@ -46,7 +50,7 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
     private TransformerFactoryEntry[][] cached = EMPTY_DOUBLE_ENTRY_ARRAY;
 
     /** flag for cache. */
-    private boolean cacheIsValid = true;
+    private volatile boolean cacheIsValid = true;
 
     public TransformerFactoryServiceTracker(final BundleContext bc, final String serviceClassName) {
         super(bc, serviceClassName);
@@ -58,8 +62,11 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
     @Override
     public Object addingService(ServiceReference reference) {
         final boolean isGlobal = isGlobal(reference);
+        LOGGER.debug("Adding service {}, isGlobal={}", reference, isGlobal);
         if ( isGlobal ) {
-            this.cacheIsValid = false;
+            synchronized (this) {
+                this.cacheIsValid = false;
+            }
         }
         Object obj = super.addingService(reference);
         if ( obj == null && isGlobal ) {
@@ -73,8 +80,12 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
      */
     @Override
     public void removedService(ServiceReference reference, Object service) {
-        if ( isGlobal(reference) ) {
-            this.cacheIsValid = false;
+        final boolean isGlobal = isGlobal(reference);
+        LOGGER.debug("Removing service {}, isGlobal={}", reference, isGlobal);
+        if ( isGlobal ) {
+            synchronized (this) {
+                this.cacheIsValid = false;
+            }
         }
         super.removedService(reference, service);
     }
@@ -88,6 +99,7 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
             synchronized ( this ) {
                 if ( !this.cacheIsValid ) {
                     final ServiceReference[] refs = this.getServiceReferences();
+                    LOGGER.debug("Found {} service references={}", refs.length, refs);
                     if ( refs == null || refs.length == 0 ) {
                         this.cached = EMPTY_DOUBLE_ENTRY_ARRAY;
                     } else {
@@ -121,8 +133,10 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
                         for(final ServiceReference ref : refs) {
                             if ( isGlobal(ref) ) {
                                 if ( index < preCount ) {
+                                    LOGGER.debug("Initializing pre TransformerFactory for service ref: {}", ref);
                                     globalFactories[0][index] = new TransformerFactoryEntry((TransformerFactory) this.getService(ref), ref);
                                 } else {
+                                    LOGGER.debug("Initializing post TransformerFactory for service ref: {}", ref);
                                     globalFactories[1][index - preCount] = new TransformerFactoryEntry((TransformerFactory) this.getService(ref), ref);
                                 }
                                 index++;
@@ -147,11 +161,13 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
         final TransformerFactoryEntry[][] globalFactoryEntries = this.getGlobalTransformerFactoryEntries();
         // quick check
         if ( globalFactoryEntries == EMPTY_DOUBLE_ENTRY_ARRAY ) {
+            LOGGER.debug("No TransformerFactory found");
             return EMPTY_DOUBLE_FACTORY_ARRAY;
         }
         final TransformerFactory[][] factories = new TransformerFactory[2][];
         for(int i=0; i<2; i++) {
             if ( globalFactoryEntries[i] == EMPTY_ENTRY_ARRAY ) {
+                LOGGER.debug("No {} TransformerFactory found for context {}", i == 0 ? "pre" : "post", context);
                 factories[i] = EMPTY_FACTORY_ARRAY;
             } else {
                 factories[i] = new TransformerFactory[globalFactoryEntries[i].length];
@@ -161,6 +177,7 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
                         factories[i][m] = entry.factory;
                     }
                 }
+                LOGGER.debug("Found {} Transformer factories {} for context {}", i == 0 ? "pre" : "post", factories[i], context);
             }
         }
         return factories;
