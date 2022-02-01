@@ -17,7 +17,6 @@
 package org.apache.sling.rewriter.impl;
 
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.sling.rewriter.ProcessingContext;
 import org.apache.sling.rewriter.TransformerFactory;
@@ -51,7 +50,7 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
     private TransformerFactoryEntry[][] cached = EMPTY_DOUBLE_ENTRY_ARRAY;
 
     /** flag for cache. */
-    private AtomicBoolean cacheIsValid = new AtomicBoolean(true);
+    private volatile boolean cacheIsValid = true;
 
     public TransformerFactoryServiceTracker(final BundleContext bc, final String serviceClassName) {
         super(bc, serviceClassName);
@@ -64,12 +63,15 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
     public Object addingService(ServiceReference reference) {
         final boolean isGlobal = isGlobal(reference);
         LOGGER.debug("Adding service {}, isGlobal={}", reference.getClass(), isGlobal);
-        Object obj = super.addingService(reference);
-        if ( obj == null && isGlobal ) {
-            obj = this.context.getService(reference);
-        }
-        if ( isGlobal ) {
-            this.cacheIsValid.set(false);
+        Object obj = null;
+        synchronized (this) {
+            if ( isGlobal ) {
+                this.cacheIsValid = false;
+            }
+            obj = super.addingService(reference);
+            if ( obj == null && isGlobal ) {
+                obj = this.context.getService(reference);
+            }
         }
         return obj;
     }
@@ -81,9 +83,11 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
     public void removedService(ServiceReference reference, Object service) {
         final boolean isGlobal = isGlobal(reference);
         LOGGER.debug("Removing service {}, isGlobal={}", reference.getClass(), isGlobal);
-        super.removedService(reference, service);
-        if ( isGlobal ) {
-            this.cacheIsValid.set(false);
+        synchronized (this) {
+            if ( isGlobal ) {
+                this.cacheIsValid = false;
+            }
+            super.removedService(reference, service);
         }
     }
 
@@ -92,9 +96,9 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
      * @return Two arrays of transformer factories
      */
     public TransformerFactoryEntry[][] getGlobalTransformerFactoryEntries() {
-        if ( !this.cacheIsValid.get() ) {
+        if ( !this.cacheIsValid ) {
             synchronized ( this ) {
-                if ( !this.cacheIsValid.get() ) {
+                if ( !this.cacheIsValid ) {
                     final ServiceReference[] refs = this.getServiceReferences();
                     LOGGER.debug("Found {} service references", refs.length);
                     if ( refs == null || refs.length == 0 ) {
@@ -142,7 +146,7 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
                         this.cached = globalFactories;
                     }
                 }
-                this.cacheIsValid.set(true);
+                this.cacheIsValid = true;
             }
         }
 
