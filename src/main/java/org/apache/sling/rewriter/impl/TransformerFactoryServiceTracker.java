@@ -49,11 +49,12 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
 
     private TransformerFactoryEntry[][] cached = EMPTY_DOUBLE_ENTRY_ARRAY;
 
-    /** flag for cache. */
-    private volatile boolean cacheIsValid = true;
+    /** flag for tracking cache updates. */
+    private volatile int currentTrackingCount;
 
     public TransformerFactoryServiceTracker(final BundleContext bc, final String serviceClassName) {
         super(bc, serviceClassName);
+        this.currentTrackingCount = super.getTrackingCount();
     }
 
     /**
@@ -68,11 +69,6 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
         if ( obj == null && isGlobal ) {
             obj = this.context.getService(reference);
         }
-        synchronized (this) {
-            if ( isGlobal ) {
-                this.cacheIsValid = false;
-            }
-        }
         return obj;
     }
 
@@ -84,11 +80,6 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
         final boolean isGlobal = isGlobal(reference);
         LOGGER.debug("Removing service {}, isGlobal={}", reference.getClass(), isGlobal);
         super.removedService(reference, service);
-        synchronized (this) {
-            if ( isGlobal ) {
-                this.cacheIsValid = false;
-            }
-        }
     }
 
     /**
@@ -96,9 +87,9 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
      * @return Two arrays of transformer factories
      */
     public TransformerFactoryEntry[][] getGlobalTransformerFactoryEntries() {
-        if ( !this.cacheIsValid ) {
+        if (this.currentTrackingCount != this.getTrackingCount()) {
             synchronized ( this ) {
-                if ( !this.cacheIsValid ) {
+                if (this.currentTrackingCount != this.getTrackingCount()) {
                     final ServiceReference[] refs = this.getServiceReferences();
                     LOGGER.debug("Found {} service references", refs.length);
                     if ( refs == null || refs.length == 0 ) {
@@ -145,8 +136,8 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
                         }
                         this.cached = globalFactories;
                     }
+                    this.currentTrackingCount = this.getTrackingCount();
                 }
-                this.cacheIsValid = true;
             }
         }
 
