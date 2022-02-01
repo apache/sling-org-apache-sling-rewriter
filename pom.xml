@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.sling</groupId>
         <artifactId>sling-bundle-parent</artifactId>
-        <version>38</version>
+        <version>46</version>
         <relativePath />
     </parent>
 
@@ -46,6 +46,7 @@
 
     <properties>
         <org.ops4j.pax.exam.version>4.13.3</org.ops4j.pax.exam.version>
+        <project.build.outputTimestamp>1</project.build.outputTimestamp>
     </properties>
 
     <build>
