@@ -16,8 +16,6 @@
  */
 package org.apache.sling.rewriter.impl;
 
-import java.util.Comparator;
-
 import org.apache.sling.commons.osgi.OsgiUtil;
 import org.apache.sling.rewriter.Generator;
 import org.apache.sling.rewriter.GeneratorFactory;
@@ -75,7 +73,7 @@ public class FactoryCache {
     private final HashingServiceTrackerCustomizer<SerializerFactory> serializerTracker;
 
     /** The tracker for transformer factories. */
-    private final TransformerFactoryServiceTracker<TransformerFactory> transformerTracker;
+    private final TransformerFactoryServiceTracker transformerTracker;
 
     /** The tracker for processor factories. */
     private final HashingServiceTrackerCustomizer<ProcessorFactory> processorTracker;
@@ -86,7 +84,7 @@ public class FactoryCache {
                 GeneratorFactory.class.getName());
         this.serializerTracker = new HashingServiceTrackerCustomizer<SerializerFactory>(context,
                 SerializerFactory.class.getName());
-        this.transformerTracker = new TransformerFactoryServiceTracker<TransformerFactory>(context,
+        this.transformerTracker = new TransformerFactoryServiceTracker(context,
                 TransformerFactory.class.getName());
         this.processorTracker = new HashingServiceTrackerCustomizer<ProcessorFactory>(context,
                 ProcessorFactory.class.getName());
@@ -214,24 +212,12 @@ public class FactoryCache {
         return transformers;
     }
 
-    /**
-     * Comparator for service references.
-     */
-    static final class ServiceReferenceComparator implements Comparator<ServiceReference> {
-        public static ServiceReferenceComparator INSTANCE = new ServiceReferenceComparator();
-
-        @Override
-        public int compare(ServiceReference o1, ServiceReference o2) {
-            return o1.compareTo(o2);
-        }
-    }
-
     static final class TransformerFactoryEntry {
         public final TransformerFactory factory;
 
         private final ProcessorConfiguration configuration;
 
-        public TransformerFactoryEntry(final TransformerFactory factory, final ServiceReference ref) {
+        public TransformerFactoryEntry(final TransformerFactory factory, final ServiceReference<TransformerFactory> ref) {
             this.factory = factory;
             final String[] paths = OsgiUtil.toStringArray(ref.getProperty(PROPERTY_PATHS), null);
             final String[] extensions = OsgiUtil.toStringArray(ref.getProperty(PROPERTY_EXTENSIONS), null);

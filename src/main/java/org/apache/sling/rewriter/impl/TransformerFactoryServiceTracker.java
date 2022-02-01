@@ -20,7 +20,6 @@ import java.util.Arrays;
 
 import org.apache.sling.rewriter.ProcessingContext;
 import org.apache.sling.rewriter.TransformerFactory;
-import org.apache.sling.rewriter.impl.FactoryCache.ServiceReferenceComparator;
 import org.apache.sling.rewriter.impl.FactoryCache.TransformerFactoryEntry;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -28,16 +27,16 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCustomizer<T> {
+final class TransformerFactoryServiceTracker extends HashingServiceTrackerCustomizer<TransformerFactory> {
 
     private final Logger LOGGER = LoggerFactory.getLogger(TransformerFactoryServiceTracker.class);
 
-    private String getMode(final ServiceReference ref) {
+    private String getMode(final ServiceReference<TransformerFactory> ref) {
         final String mode = (String) ref.getProperty(FactoryCache.PROPERTY_MODE);
         return mode;
     }
 
-    private boolean isGlobal(final ServiceReference ref) {
+    private boolean isGlobal(final ServiceReference<TransformerFactory> ref) {
         return FactoryCache.MODE_GLOBAL.equalsIgnoreCase(this.getMode(ref));
     }
 
@@ -61,12 +60,11 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
      * @see org.osgi.util.tracker.ServiceTracker#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
-    public Object addingService(ServiceReference reference) {
+    public TransformerFactory addingService(ServiceReference<TransformerFactory> reference) {
         final boolean isGlobal = isGlobal(reference);
         LOGGER.debug("Adding service {}, isGlobal={}", reference.getClass(), isGlobal);
-        Object obj = null;
-        obj = super.addingService(reference);
-        if ( obj == null && isGlobal ) {
+        TransformerFactory obj = super.addingService(reference);
+        if ( isGlobal && getType(reference) == null ) {
             obj = this.context.getService(reference);
         }
         return obj;
@@ -76,10 +74,13 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
      * @see org.osgi.util.tracker.ServiceTracker#removedService(org.osgi.framework.ServiceReference, java.lang.Object)
      */
     @Override
-    public void removedService(ServiceReference reference, Object service) {
+    public void removedService(ServiceReference<TransformerFactory> reference, TransformerFactory service) {
         final boolean isGlobal = isGlobal(reference);
         LOGGER.debug("Removing service {}, isGlobal={}", reference.getClass(), isGlobal);
         super.removedService(reference, service);
+        if ( isGlobal && getType(reference) == null ) {
+            this.context.ungetService(reference);
+        }
     }
 
     /**
@@ -90,16 +91,16 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
         if (this.currentTrackingCount != this.getTrackingCount()) {
             synchronized ( this ) {
                 if (this.currentTrackingCount != this.getTrackingCount()) {
-                    final ServiceReference[] refs = this.getServiceReferences();
+                    final ServiceReference<TransformerFactory>[] refs = this.getServiceReferences();
                     LOGGER.debug("Found {} service references", refs.length);
                     if ( refs == null || refs.length == 0 ) {
                         this.cached = EMPTY_DOUBLE_ENTRY_ARRAY;
                     } else {
-                        Arrays.sort(refs, ServiceReferenceComparator.INSTANCE);
+                        Arrays.sort(refs);
 
                         int preCount = 0;
                         int postCount = 0;
-                        for(final ServiceReference ref : refs) {
+                        for(final ServiceReference<TransformerFactory> ref : refs) {
                             if ( isGlobal(ref) ) {
                                 final Object r = ref.getProperty(Constants.SERVICE_RANKING);
                                 int ranking = (r instanceof Integer ? (Integer)r : 0);
@@ -122,14 +123,14 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
                             globalFactories[1] = new TransformerFactoryEntry[postCount];
                         }
                         int index = 0;
-                        for(final ServiceReference ref : refs) {
+                        for(final ServiceReference<TransformerFactory> ref : refs) {
                             if ( isGlobal(ref) ) {
                                 if ( index < preCount ) {
                                     LOGGER.debug("Initializing pre global TransformerFactory for service ref: {}", ref.getClass());
-                                    globalFactories[0][index] = new TransformerFactoryEntry((TransformerFactory) this.getService(ref), ref);
+                                    globalFactories[0][index] = new TransformerFactoryEntry(this.getService(ref), ref);
                                 } else {
                                     LOGGER.debug("Initializing post global TransformerFactory for service ref: {}", ref.getClass());
-                                    globalFactories[1][index - preCount] = new TransformerFactoryEntry((TransformerFactory) this.getService(ref), ref);
+                                    globalFactories[1][index - preCount] = new TransformerFactoryEntry(this.getService(ref), ref);
                                 }
                                 index++;
                             }

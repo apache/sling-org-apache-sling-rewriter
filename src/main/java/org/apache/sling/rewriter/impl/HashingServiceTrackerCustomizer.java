@@ -31,14 +31,14 @@ import org.osgi.util.tracker.ServiceTracker;
 /**
  * This service tracker stores all services into a hash map.
  */
-class HashingServiceTrackerCustomizer<T> extends ServiceTracker {
+class HashingServiceTrackerCustomizer<T> extends ServiceTracker<T, T> {
 
     public static final class Pair<T> {
 
-        public final ServiceReference reference;
+        public final ServiceReference<T> reference;
         public final T service;
 
-        public Pair(final ServiceReference r, final T s) {
+        public Pair(final ServiceReference<T> r, final T s) {
             this.reference = r;
             this.service = s;
         }
@@ -50,7 +50,7 @@ class HashingServiceTrackerCustomizer<T> extends ServiceTracker {
 
         public final List<Pair<T>> references = new ArrayList<Pair<T>>();
 
-        public void add(final ServiceReference ref, final T service) {
+        public void add(final ServiceReference<T> ref, final T service) {
             references.add(new Pair<T>(ref, service));
             Collections.sort(references, new Comparator<Pair<T>>() {
 
@@ -64,7 +64,7 @@ class HashingServiceTrackerCustomizer<T> extends ServiceTracker {
             }
         }
 
-        public void remove(final ServiceReference ref) {
+        public void remove(final ServiceReference<T> ref) {
             if ( !references.isEmpty() ) {
                 boolean update = references.get(0).reference == ref;
                 final Iterator<Pair<T>> i = references.iterator();
@@ -101,7 +101,7 @@ class HashingServiceTrackerCustomizer<T> extends ServiceTracker {
         return entry == null ? null : entry.service;
     }
 
-    private String getType(final ServiceReference ref) {
+    String getType(final ServiceReference<T> ref) {
         final String type = (String) ref.getProperty(FactoryCache.PROPERTY_TYPE);
         return type;
     }
@@ -110,10 +110,9 @@ class HashingServiceTrackerCustomizer<T> extends ServiceTracker {
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
-    public Object addingService(final ServiceReference reference) {
+    public T addingService(final ServiceReference<T> reference) {
         final String type = this.getType(reference);
-        @SuppressWarnings("unchecked")
-        final T factory = (type == null ? null : (T) this.context.getService(reference));
+        final T factory = (type == null ? null : this.context.getService(reference));
         if ( factory != null ) {
             if ( FactoryCache.LOGGER.isDebugEnabled() ) {
                 FactoryCache.LOGGER.debug("Found service {}, type={}.", factory, type);
@@ -134,7 +133,7 @@ class HashingServiceTrackerCustomizer<T> extends ServiceTracker {
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#removedService(org.osgi.framework.ServiceReference, java.lang.Object)
      */
     @Override
-    public void removedService(final ServiceReference reference, final Object service) {
+    public void removedService(final ServiceReference<T> reference, final T service) {
         final String type = this.getType(reference);
         if ( type != null ) {
             synchronized ( this ) {

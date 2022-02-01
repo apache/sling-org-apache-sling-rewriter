@@ -21,9 +21,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +44,6 @@ import org.apache.sling.serviceusermapping.ServiceUserMapped;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -60,23 +57,26 @@ import org.slf4j.LoggerFactory;
  * This manager keeps track of configured processors.
  *
  */
-@Component(service = ProcessorManager.class,
+@Component(service = {ProcessorManager.class, ResourceChangeListener.class},
   property = {
-          Constants.SERVICE_VENDOR + "=The Apache Software Foundation"
+          Constants.SERVICE_VENDOR + "=The Apache Software Foundation",
+          ResourceChangeListener.CHANGES + "=ADDED",
+          ResourceChangeListener.CHANGES + "=CHANGED",
+          ResourceChangeListener.CHANGES + "=REMOVED",
+          ResourceChangeListener.CHANGES + "=PROVIDER_ADDED",
+          ResourceChangeListener.CHANGES + "=PROVIDER_REMOVED",
+          ResourceChangeListener.PATHS + "=glob:*" + ProcessorManagerImpl.CONFIG_PATH + "/**"
   })
 public class ProcessorManagerImpl
     implements ProcessorManager, ResourceChangeListener, ExternalResourceChangeListener  {
 
-    private static final String CONFIG_REL_PATH = "config/rewriter";
-    private static final String CONFIG_PATH = "/" + CONFIG_REL_PATH;
+    static final String CONFIG_REL_PATH = "config/rewriter";
+    static final String CONFIG_PATH = "/" + CONFIG_REL_PATH;
 
     protected static final String MIME_TYPE_HTML = "text/html";
 
     /** The logger */
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-    /** The bundle context. */
-    private BundleContext bundleContext;
 
     @Reference
     private ResourceResolverFactory resourceResolverFactory;
@@ -93,9 +93,6 @@ public class ProcessorManagerImpl
     /** Ordered processor configurations. */
     private List<ProcessorConfiguration> orderedProcessors = new ArrayList<>();
 
-    /** Event handler registration */
-    private volatile ServiceRegistration<ResourceChangeListener> eventHandlerRegistration;
-
     /** Search path */
     private String[] searchPath;
 
@@ -109,24 +106,13 @@ public class ProcessorManagerImpl
     @Activate
 	protected void activate(final BundleContext ctx)
     throws LoginException, InvalidSyntaxException {
-        this.bundleContext = ctx;
-        this.factoryCache = new FactoryCache(this.bundleContext);
+        this.factoryCache = new FactoryCache(ctx);
 
         // create array of search paths for actions and constraints
         this.searchPath = this.initProcessors();
-    	// register event handler
-		final Dictionary<String, Object> props = new Hashtable<>();
-		props.put(ResourceChangeListener.CHANGES,
-				new String[] { ChangeType.ADDED.toString(), ChangeType.CHANGED.toString(),
-						ChangeType.REMOVED.toString(), ChangeType.PROVIDER_ADDED.toString(), ChangeType.PROVIDER_REMOVED.toString() });
-		props.put(ResourceChangeListener.PATHS, "glob:*" + CONFIG_PATH + "/**");
-		props.put("service.description", "Processor Configuration/Modification Handler");
-		props.put("service.vendor", "The Apache Software Foundation");
-		this.eventHandlerRegistration = this.bundleContext.registerService(ResourceChangeListener.class, this,
-				props);
     	this.factoryCache.start();
 
-        WebConsoleConfigPrinter.register(this.bundleContext, this);
+        WebConsoleConfigPrinter.register(ctx, this);
     }
 
     private ResourceResolver createResourceResolver() throws LoginException {
@@ -138,16 +124,10 @@ public class ProcessorManagerImpl
      * @param ctx
      */
     protected void deactivate(final ComponentContext ctx) {
-        if ( this.eventHandlerRegistration != null ) {
-            this.eventHandlerRegistration.unregister();
-            this.eventHandlerRegistration = null;
-        }
         this.factoryCache.stop();
         this.factoryCache = null;
 
         WebConsoleConfigPrinter.unregister();
-
-        this.bundleContext = null;
     }
 
     @Override
@@ -211,7 +191,7 @@ public class ProcessorManagerImpl
     /**
      * Initializes the current processors
      */
-    private synchronized String[] initProcessors() throws LoginException {
+    private String[] initProcessors() throws LoginException {
         try ( final ResourceResolver resolver = this.createResourceResolver()) {
             for(final String path : resolver.getSearchPath() ) {
                 // check if the search path exists
