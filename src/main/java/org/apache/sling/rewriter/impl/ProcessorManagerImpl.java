@@ -65,8 +65,11 @@ import org.slf4j.LoggerFactory;
           ResourceChangeListener.CHANGES + "=REMOVED",
           ResourceChangeListener.CHANGES + "=PROVIDER_ADDED",
           ResourceChangeListener.CHANGES + "=PROVIDER_REMOVED",
-          ResourceChangeListener.PATHS + "=glob:*" + ProcessorManagerImpl.CONFIG_PATH + "/**"
-  })
+          ResourceChangeListener.PATHS + "=glob:*" + ProcessorManagerImpl.CONFIG_PATH + "/**",
+          "felix.webconsole.label=slingrewriter",
+          "felix.webconsole.title=Sling Rewriter",
+          "felix.webconsole.configprinter.modes=always"
+    })
 public class ProcessorManagerImpl
     implements ProcessorManager, ResourceChangeListener, ExternalResourceChangeListener  {
 
@@ -91,7 +94,7 @@ public class ProcessorManagerImpl
     private final Map<String, ConfigEntry[]> processors = new HashMap<>();
 
     /** Ordered processor configurations. */
-    private List<ProcessorConfiguration> orderedProcessors = new ArrayList<>();
+    private final List<ProcessorConfiguration> orderedProcessors = new ArrayList<>();
 
     /** Search path */
     private String[] searchPath;
@@ -111,8 +114,6 @@ public class ProcessorManagerImpl
         // create array of search paths for actions and constraints
         this.searchPath = this.initProcessors();
     	this.factoryCache.start();
-
-        WebConsoleConfigPrinter.register(ctx, this);
     }
 
     private ResourceResolver createResourceResolver() throws LoginException {
@@ -126,8 +127,6 @@ public class ProcessorManagerImpl
     protected void deactivate(final ComponentContext ctx) {
         this.factoryCache.stop();
         this.factoryCache = null;
-
-        WebConsoleConfigPrinter.unregister();
     }
 
     @Override
@@ -261,7 +260,11 @@ public class ProcessorManagerImpl
         pw.println(entry.path);
     }
 
-    synchronized void printConfiguration(final PrintWriter pw) {
+    /**
+     * Print out the rewriter configs.
+     * See org.apache.felix.webconsole.ConfigurationPrinter#printConfiguration(java.io.PrintWriter).
+     */
+    public synchronized void printConfiguration(final PrintWriter pw) {
         pw.println("Current Apache Sling Rewriter Configuration");
         pw.println("=================================================================");
         pw.println("Active Configurations");
