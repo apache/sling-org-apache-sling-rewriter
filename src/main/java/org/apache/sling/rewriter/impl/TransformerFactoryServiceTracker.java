@@ -64,13 +64,13 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
         final boolean isGlobal = isGlobal(reference);
         LOGGER.debug("Adding service {}, isGlobal={}", reference.getClass(), isGlobal);
         Object obj = null;
+        obj = super.addingService(reference);
+        if ( obj == null && isGlobal ) {
+            obj = this.context.getService(reference);
+        }
         synchronized (this) {
             if ( isGlobal ) {
                 this.cacheIsValid = false;
-            }
-            obj = super.addingService(reference);
-            if ( obj == null && isGlobal ) {
-                obj = this.context.getService(reference);
             }
         }
         return obj;
@@ -83,11 +83,11 @@ final class TransformerFactoryServiceTracker<T> extends HashingServiceTrackerCus
     public void removedService(ServiceReference reference, Object service) {
         final boolean isGlobal = isGlobal(reference);
         LOGGER.debug("Removing service {}, isGlobal={}", reference.getClass(), isGlobal);
+        super.removedService(reference, service);
         synchronized (this) {
             if ( isGlobal ) {
                 this.cacheIsValid = false;
             }
-            super.removedService(reference, service);
         }
     }
 
