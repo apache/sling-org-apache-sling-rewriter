@@ -97,7 +97,7 @@ public class ProcessorManagerImpl
     private final List<ProcessorConfiguration> orderedProcessors = new ArrayList<>();
 
     /** Search path */
-    private String[] searchPath;
+    protected String[] searchPath;
 
     /** The factory cache. */
     private FactoryCache factoryCache;
@@ -116,7 +116,7 @@ public class ProcessorManagerImpl
     	this.factoryCache.start();
     }
 
-    private ResourceResolver createResourceResolver() throws LoginException {
+    protected ResourceResolver createResourceResolver() throws LoginException {
         return this.resourceResolverFactory.getServiceResourceResolver(null);
     }
 
@@ -223,7 +223,7 @@ public class ProcessorManagerImpl
     /**
      * Read the configuration for the processor from the repository.
      */
-    private ProcessorConfigurationImpl getProcessorConfiguration(final Resource configResource) {
+    protected ProcessorConfigurationImpl getProcessorConfiguration(final Resource configResource) {
         final ProcessorConfigurationImpl config = new ProcessorConfigurationImpl(configResource);
         return config;
     }
@@ -240,6 +240,7 @@ public class ProcessorManagerImpl
             ConfigEntry[] newConfigs = new ConfigEntry[configs.length + 1];
             System.arraycopy(configs, 0, newConfigs, 0, configs.length);
             newConfigs[configs.length] = new ConfigEntry(configPath, config);
+            configs=newConfigs;
         }
 
         this.processors.put(key, configs);
@@ -296,16 +297,14 @@ public class ProcessorManagerImpl
     /**
      * updates a processor
      */
-    private synchronized void updateProcessor(final String path) {
+    protected synchronized void updateProcessor(final String path) {
         final int pos = path.lastIndexOf('/');
         final String key = path.substring(pos + 1);
-        int keyIndex = 0;
         // search the search path
         for(final String sp : this.searchPath) {
             if ( path.startsWith(sp) ) {
                 break;
             }
-            keyIndex++;
         }
 
         try ( final ResourceResolver resolver = this.createResourceResolver()) {
@@ -327,61 +326,14 @@ public class ProcessorManagerImpl
                 }
                 if ( index != -1 ) {
                     // we are already in the array
-                    if ( index == 0 ) {
-                        // we are the first, so remove the old, and add the new
                         this.orderedProcessors.remove(configs[index].config);
                         configs[index] = new ConfigEntry(path, config);
                         if ( config.isActive() ) {
                             this.orderedProcessors.add(config);
                             Collections.sort(this.orderedProcessors, new ProcessorConfiguratorComparator());
-                        }
-                    } else {
-                        // we are not the first, so we can simply exchange
-                        configs[index] = new ConfigEntry(path, config);
                     }
                 } else {
-                    // now we have to insert the new config at the correct place
-                    int insertIndex = 0;
-                    boolean found = false;
-                    while ( !found && insertIndex < configs.length) {
-                        final ConfigEntry current = configs[insertIndex];
-                        int currentIndex = -1;
-                        for(int i=0; i<searchPath.length; i++) {
-                            if ( current.path.startsWith(searchPath[i]) ) {
-                                currentIndex = i;
-                                break;
-                            }
-                        }
-                        if ( currentIndex >= keyIndex ) {
-                            found = true;
-                            insertIndex = currentIndex;
-                        }
-                    }
-
-                    if ( !found ) {
-                        // just append
-                        this.addProcessor(key, path, config);
-                    } else {
-                        ConfigEntry[] newArray = new ConfigEntry[configs.length + 1];
-                        int i = 0;
-                        for(final ConfigEntry current : configs) {
-                            if ( i == insertIndex ) {
-                                newArray[i] = new ConfigEntry(path, config);
-                                i++;
-                            }
-                            newArray[i] = current;
-                            i++;
-                        }
-                        this.processors.put(key, newArray);
-                        if ( insertIndex == 0 ) {
-                            // we are the first, so remove the old, and add the new
-                            this.orderedProcessors.remove(configs[1].config);
-                            if ( config.isActive() ) {
-                                this.orderedProcessors.add(config);
-                                Collections.sort(this.orderedProcessors, new ProcessorConfiguratorComparator());
-                            }
-                        }
-                    }
+                	this.addProcessor(key, path, config);                    
                 }
             } else {
                 // completely new, just add it
@@ -395,7 +347,7 @@ public class ProcessorManagerImpl
     /**
      * removes a pipeline
      */
-    private synchronized void removeProcessor(final String path) {
+    protected synchronized void removeProcessor(final String path) {
         final int pos = path.lastIndexOf('/');
         final String key = path.substring(pos + 1);
         // we have to search the config
