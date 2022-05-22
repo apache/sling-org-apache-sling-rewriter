@@ -86,7 +86,7 @@ public class ProcessorManagerImplTest {
 
 		processorManager.onChange(Arrays.asList(resourceChange));
 		Thread.sleep(1000);
-		// reverse order
+
 		assertEquals(2, processorManager.getProcessorConfigurations().size());
 		assertEquals(3, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0)).getOrder());
 		assertTrue(
@@ -139,7 +139,6 @@ public class ProcessorManagerImplTest {
 
 		Thread.sleep(1000);
 
-		// reverse order
 		assertEquals(4, processorManager.getProcessorConfigurations().size());
 
 		assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
