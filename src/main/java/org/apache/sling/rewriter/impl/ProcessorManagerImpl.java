@@ -231,7 +231,7 @@ public class ProcessorManagerImpl
     /**
      * adds a processor configuration
      */
-    private void addProcessor(final String key, final String configPath, final ProcessorConfigurationImpl config) {
+    protected void addProcessor(final String key, final String configPath, final ProcessorConfigurationImpl config) {
         ConfigEntry[] configs = this.processors.get(key);
         if ( configs == null ) {
             configs = new ConfigEntry[1];
@@ -347,7 +347,7 @@ public class ProcessorManagerImpl
     /**
      * removes a pipeline
      */
-    protected synchronized void removeProcessor(final String path) {
+    private synchronized void removeProcessor(final String path) {
         final int pos = path.lastIndexOf('/');
         final String key = path.substring(pos + 1);
         // we have to search the config

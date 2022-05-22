@@ -71,17 +71,15 @@ public class ProcessorManagerImplTest {
 	}
 
 	@Test
-	public void testRemoveProcessor() throws LoginException, InvalidSyntaxException {
-		processorManager.activate(mock(BundleContext.class));
-
-		processorManager.removeProcessor(createConfigPath("/apps/2"));
-		
+	public void testRemoveProcessor() throws LoginException, InvalidSyntaxException, InterruptedException {
+		processorManager.activate(mock(BundleContext.class));	
 		
 		ResourceChange resourceChange = mock(ResourceChange.class);
 		when(resourceChange.getPath()).thenReturn(createConfigPath("/apps/2"));
 		when(resourceChange.getType()).thenReturn(ChangeType.REMOVED);
 
 		processorManager.onChange(Arrays.asList(resourceChange));
+		Thread.sleep(1000);
 		// reverse order
 		assertEquals(2, processorManager.getProcessorConfigurations().size());
 		assertEquals(3, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0)).getOrder());
