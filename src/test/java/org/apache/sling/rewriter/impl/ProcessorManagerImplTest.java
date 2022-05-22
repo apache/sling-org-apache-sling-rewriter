@@ -18,6 +18,7 @@
 package org.apache.sling.rewriter.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -65,15 +66,20 @@ public class ProcessorManagerImplTest {
 		assertEquals(3, processorManager.getProcessorConfigurations().size());
 		// reverse order
 		assertEquals(3, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0)).getOrder());
+		assertTrue(
+				processorManager.getProcessorConfigurations().get(0).toString().contains(createConfigPath("/apps/3")));
 		assertEquals(2, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1)).getOrder());
+		assertTrue(
+				processorManager.getProcessorConfigurations().get(1).toString().contains(createConfigPath("/apps/2")));
 		assertEquals(1, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2)).getOrder());
-
+		assertTrue(
+				processorManager.getProcessorConfigurations().get(2).toString().contains(createConfigPath("/apps/1")));
 	}
 
 	@Test
 	public void testRemoveProcessor() throws LoginException, InvalidSyntaxException, InterruptedException {
-		processorManager.activate(mock(BundleContext.class));	
-		
+		processorManager.activate(mock(BundleContext.class));
+
 		ResourceChange resourceChange = mock(ResourceChange.class);
 		when(resourceChange.getPath()).thenReturn(createConfigPath("/apps/2"));
 		when(resourceChange.getType()).thenReturn(ChangeType.REMOVED);
@@ -83,36 +89,46 @@ public class ProcessorManagerImplTest {
 		// reverse order
 		assertEquals(2, processorManager.getProcessorConfigurations().size());
 		assertEquals(3, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0)).getOrder());
+		assertTrue(
+				processorManager.getProcessorConfigurations().get(0).toString().contains(createConfigPath("/apps/3")));
 		assertEquals(1, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1)).getOrder());
+		assertTrue(
+				processorManager.getProcessorConfigurations().get(1).toString().contains(createConfigPath("/apps/1")));
 	}
 
 	@Test
-	public void testUpdateProcessor() throws LoginException, PersistenceException, InvalidSyntaxException, InterruptedException {
+	public void testUpdateProcessor()
+			throws LoginException, PersistenceException, InvalidSyntaxException, InterruptedException {
 		processorManager.activate(mock(BundleContext.class));
 
 		resourceResolver.delete(resourceResolver.getResource("/apps/2"));
 		resourceResolver.commit();
 
 		createConfig(resourceResolver, "2", 10);
-		
+
 		ResourceChange resourceChange = mock(ResourceChange.class);
 		when(resourceChange.getPath()).thenReturn(createConfigPath("/apps/2"));
 		when(resourceChange.getType()).thenReturn(ChangeType.CHANGED);
 
 		processorManager.onChange(Arrays.asList(resourceChange));
-		
-		assertEquals(3, processorManager.getProcessorConfigurations().size());
+
 		Thread.sleep(1000);
-		assertEquals(10,
-				((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0)).getOrder());
-		assertEquals(3, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1)).getOrder());
-		assertEquals(1, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2)).getOrder());
+
+		assertEquals(3, processorManager.getProcessorConfigurations().size());
+
+		assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
+				createConfigPath("/apps/2"), 10);
+		assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
+				createConfigPath("/apps/3"), 3);
+		assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2),
+				createConfigPath("/apps/1"), 1);
+
 	}
 
 	@Test
-	public void testUpdateWithNewProcessor() throws LoginException, PersistenceException, InvalidSyntaxException, InterruptedException {
+	public void testUpdateWithNewProcessor()
+			throws LoginException, PersistenceException, InvalidSyntaxException, InterruptedException {
 		processorManager.activate(mock(BundleContext.class));
-
 
 		createConfig(resourceResolver, "4", 10);
 		ResourceChange resourceChange = mock(ResourceChange.class);
@@ -125,11 +141,16 @@ public class ProcessorManagerImplTest {
 
 		// reverse order
 		assertEquals(4, processorManager.getProcessorConfigurations().size());
-		assertEquals(10,
-				((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0)).getOrder());
-		assertEquals(3, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1)).getOrder());
-		assertEquals(2, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2)).getOrder());
-		assertEquals(1, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(3)).getOrder());
+
+		assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
+				createConfigPath("/apps/4"), 10);
+		assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
+				createConfigPath("/apps/3"), 3);
+		assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2),
+				createConfigPath("/apps/2"), 2);
+		assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(3),
+				createConfigPath("/apps/1"), 1);
+
 	}
 
 	void createConfigs(ResourceResolver resolver) throws PersistenceException {
@@ -138,15 +159,21 @@ public class ProcessorManagerImplTest {
 		}
 	}
 
-	void createConfig(ResourceResolver resolver, String rt, int order) throws PersistenceException {
-		Resource root = resourceResolver.create(testRoot, rt, ValueMap.EMPTY);
+	void assertOrderRT(ProcessorConfigurationImpl configuration, String rt, int order) {
+		assertEquals(order, configuration.getOrder());
+		assertTrue(configuration.toString().contains(rt));
+	}
+
+	void createConfig(ResourceResolver resolver, String appName, int order) throws PersistenceException {
+		Resource root = resourceResolver.create(testRoot, appName, ValueMap.EMPTY);
 		Resource configRoot = resourceResolver.create(root, "config", ValueMap.EMPTY);
 		Resource rewriterRoot = resourceResolver.create(configRoot, "rewriter", ValueMap.EMPTY);
 
 		resolver.create(rewriterRoot, "rewriter-html",
 				ImmutableMap.<String, Object>builder().put("contentTypes", new String[] { "text/html" })
-						.put("resourceTypes", new String[] { rt }).put("enabled", true).put("order", order)
-						.put("generatorType", order).put("serializerType", "htmlwriter").build());
+						.put("resourceTypes", new String[] { createConfigPath("/apps/" + appName) })
+						.put("enabled", true).put("order", order).put("generatorType", order)
+						.put("serializerType", "htmlwriter").build());
 	}
 
 	String createConfigPath(String root) {
