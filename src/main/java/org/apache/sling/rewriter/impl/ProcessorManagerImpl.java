@@ -97,7 +97,7 @@ public class ProcessorManagerImpl
     private final List<ProcessorConfiguration> orderedProcessors = new ArrayList<>();
 
     /** Search path */
-    protected String[] searchPath;
+    private String[] searchPath;
 
     /** The factory cache. */
     private FactoryCache factoryCache;
@@ -223,7 +223,7 @@ public class ProcessorManagerImpl
     /**
      * Read the configuration for the processor from the repository.
      */
-    protected ProcessorConfigurationImpl getProcessorConfiguration(final Resource configResource) {
+    private ProcessorConfigurationImpl getProcessorConfiguration(final Resource configResource) {
         final ProcessorConfigurationImpl config = new ProcessorConfigurationImpl(configResource);
         return config;
     }
@@ -231,7 +231,7 @@ public class ProcessorManagerImpl
     /**
      * adds a processor configuration
      */
-    protected void addProcessor(final String key, final String configPath, final ProcessorConfigurationImpl config) {
+    private void addProcessor(final String key, final String configPath, final ProcessorConfigurationImpl config) {
         ConfigEntry[] configs = this.processors.get(key);
         if ( configs == null ) {
             configs = new ConfigEntry[1];
@@ -297,7 +297,7 @@ public class ProcessorManagerImpl
     /**
      * updates a processor
      */
-    protected synchronized void updateProcessor(final String path) {
+    private synchronized void updateProcessor(final String path) {
         final int pos = path.lastIndexOf('/');
         final String key = path.substring(pos + 1);
         // search the search path
