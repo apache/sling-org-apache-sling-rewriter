@@ -64,16 +64,12 @@ public class ProcessorManagerImplTest {
 		processorManager.activate(mock(BundleContext.class));
 
 		assertEquals(3, processorManager.getProcessorConfigurations().size());
-		// reverse order
-		assertEquals(3, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0)).getOrder());
-		assertTrue(
-				processorManager.getProcessorConfigurations().get(0).toString().contains(createConfigPath("/apps/3")));
-		assertEquals(2, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1)).getOrder());
-		assertTrue(
-				processorManager.getProcessorConfigurations().get(1).toString().contains(createConfigPath("/apps/2")));
-		assertEquals(1, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2)).getOrder());
-		assertTrue(
-				processorManager.getProcessorConfigurations().get(2).toString().contains(createConfigPath("/apps/1")));
+		assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
+				createConfigPath("/apps/3"), 3);
+		assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
+				createConfigPath("/apps/2"), 2);
+		assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2),
+				createConfigPath("/apps/1"), 1);
 	}
 
 	@Test
@@ -88,12 +84,10 @@ public class ProcessorManagerImplTest {
 		Thread.sleep(1000);
 
 		assertEquals(2, processorManager.getProcessorConfigurations().size());
-		assertEquals(3, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0)).getOrder());
-		assertTrue(
-				processorManager.getProcessorConfigurations().get(0).toString().contains(createConfigPath("/apps/3")));
-		assertEquals(1, ((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1)).getOrder());
-		assertTrue(
-				processorManager.getProcessorConfigurations().get(1).toString().contains(createConfigPath("/apps/1")));
+		assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
+				createConfigPath("/apps/3"), 3);
+		assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
+				createConfigPath("/apps/1"), 1);
 	}
 
 	@Test
