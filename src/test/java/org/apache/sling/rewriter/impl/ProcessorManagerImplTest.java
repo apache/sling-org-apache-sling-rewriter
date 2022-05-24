@@ -32,10 +32,12 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.resource.observation.ResourceChange;
 import org.apache.sling.api.resource.observation.ResourceChange.ChangeType;
 import org.apache.sling.rewriter.ProcessorManager;
+import org.apache.sling.serviceusermapping.ServiceUserMapped;
 import org.apache.sling.testing.mock.sling.junit.SlingContext;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.osgi.framework.InvalidSyntaxException;
 
 import com.google.common.collect.ImmutableMap;
@@ -51,6 +53,9 @@ public class ProcessorManagerImplTest {
 
     @Before
     public void setUp() throws LoginException, PersistenceException {
+        ServiceUserMapped serviceUserMapped = Mockito.mock(ServiceUserMapped.class);
+        context.registerService(ServiceUserMapped.class,serviceUserMapped);
+        
         resourceResolver = context.resourceResolver();
         Resource root = resourceResolver.getResource("/");
         testRoot = resourceResolver.create(root, "apps", ValueMap.EMPTY);
@@ -142,6 +147,25 @@ public class ProcessorManagerImplTest {
                 createConfigPath("/apps/2"), 10);
         assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
                 createConfigPath("/apps/3"), 3);
+        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2),
+                createConfigPath("/apps/1"), 1);
+    }
+    
+    @Test
+    public void testUpdateProcessorWithNonExistingPath()
+            throws LoginException, PersistenceException, InvalidSyntaxException, InterruptedException {
+        ResourceChange resourceChange = mock(ResourceChange.class);
+        when(resourceChange.getPath()).thenReturn(createConfigPath("/apps/nonexisting"));
+        when(resourceChange.getType()).thenReturn(ChangeType.CHANGED);
+        processorManager.onChange(Arrays.asList(resourceChange));
+
+        Thread.sleep(1000);
+
+        assertEquals(3, processorManager.getProcessorConfigurations().size());
+        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
+                createConfigPath("/apps/3"), 3);
+        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
+                createConfigPath("/apps/2"), 2);
         assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2),
                 createConfigPath("/apps/1"), 1);
 

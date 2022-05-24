@@ -40,6 +40,7 @@ import org.apache.sling.rewriter.ProcessingContext;
 import org.apache.sling.rewriter.Processor;
 import org.apache.sling.rewriter.ProcessorConfiguration;
 import org.apache.sling.rewriter.ProcessorManager;
+import org.apache.sling.serviceusermapping.ServiceUserMapped;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -47,6 +48,8 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +87,12 @@ public class ProcessorManagerImpl
     /** loaded processor configurations */
     private final Map<String, ConfigEntry[]> processors = new HashMap<>();
 
+    @Reference(
+            policy = ReferencePolicy.DYNAMIC,
+            policyOption = ReferencePolicyOption.GREEDY
+    )
+    private volatile ServiceUserMapped serviceUserMapped;
+    
     /** Ordered processor configurations. */
     private final List<ProcessorConfiguration> orderedProcessors = new ArrayList<>();
 
