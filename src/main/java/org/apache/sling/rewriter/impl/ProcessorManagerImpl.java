@@ -40,7 +40,6 @@ import org.apache.sling.rewriter.ProcessingContext;
 import org.apache.sling.rewriter.Processor;
 import org.apache.sling.rewriter.ProcessorConfiguration;
 import org.apache.sling.rewriter.ProcessorManager;
-import org.apache.sling.serviceusermapping.ServiceUserMapped;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -48,8 +47,6 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,12 +80,6 @@ public class ProcessorManagerImpl
 
     @Reference
     private ResourceResolverFactory resourceResolverFactory;
-
-    @Reference(
-        policy = ReferencePolicy.DYNAMIC,
-        policyOption = ReferencePolicyOption.GREEDY
-    )
-    private volatile ServiceUserMapped serviceUserMapped;
 
     /** loaded processor configurations */
     private final Map<String, ConfigEntry[]> processors = new HashMap<>();
@@ -240,7 +231,7 @@ public class ProcessorManagerImpl
             ConfigEntry[] newConfigs = new ConfigEntry[configs.length + 1];
             System.arraycopy(configs, 0, newConfigs, 0, configs.length);
             newConfigs[configs.length] = new ConfigEntry(configPath, config);
-            configs=newConfigs;
+            configs = newConfigs;
         }
 
         this.processors.put(key, configs);
@@ -299,13 +290,9 @@ public class ProcessorManagerImpl
      */
     private synchronized void updateProcessor(final String path) {
         final int pos = path.lastIndexOf('/');
-        final String key = path.substring(pos + 1);
-        // search the search path
-        for(final String sp : this.searchPath) {
-            if ( path.startsWith(sp) ) {
-                break;
-            }
-        }
+        final String key = path.substring(pos + 1);     
+
+        this.removeProcessor(path);        
 
         try ( final ResourceResolver resolver = this.createResourceResolver()) {
             final Resource configResource = resolver.getResource(path);
@@ -313,34 +300,10 @@ public class ProcessorManagerImpl
                 return;
             }
             final ProcessorConfigurationImpl config = this.getProcessorConfiguration(configResource);
-
-            final ConfigEntry[] configs = this.processors.get(key);
-            if ( configs != null ) {
-                // search path
-                int index = -1;
-                for(int i=0; i<configs.length; i++) {
-                    if ( configs[i].path.equals(path) ) {
-                        index = i;
-                        break;
-                    }
-                }
-                if ( index != -1 ) {
-                    // we are already in the array
-                        this.orderedProcessors.remove(configs[index].config);
-                        configs[index] = new ConfigEntry(path, config);
-                        if ( config.isActive() ) {
-                            this.orderedProcessors.add(config);
-                            Collections.sort(this.orderedProcessors, new ProcessorConfiguratorComparator());
-                    }
-                } else {
-                	this.addProcessor(key, path, config);                    
-                }
-            } else {
-                // completely new, just add it
-                this.addProcessor(key, path, config);
-            }
-        } catch ( final LoginException le) {
-            log.error("Unable to create resource resolver.", le);
+            this.addProcessor(key, path, config);
+        }
+        catch (LoginException e) {
+            log.error(e.getMessage(), e);
         }
     }
 
