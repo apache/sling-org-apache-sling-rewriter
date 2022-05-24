@@ -103,6 +103,22 @@ public class ProcessorManagerImplTest {
         assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2),
                 createConfigPath("/apps/1"), 1);
     }
+    
+    @Test
+    public void testRemoveParentPath() throws LoginException, InvalidSyntaxException, InterruptedException {
+        ResourceChange resourceChange = mock(ResourceChange.class);
+        when(resourceChange.getPath()).thenReturn("/apps/2");
+        when(resourceChange.getType()).thenReturn(ChangeType.REMOVED);
+
+        processorManager.onChange(Arrays.asList(resourceChange));
+        Thread.sleep(1000);
+
+        assertEquals(2, processorManager.getProcessorConfigurations().size());
+        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
+                createConfigPath("/apps/3"), 3);
+        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
+                createConfigPath("/apps/1"), 1);
+    }
 
     @Test
     public void testUpdateProcessor()
