@@ -126,7 +126,7 @@ public class ProcessorManagerImplTest {
         resourceResolver.delete(resourceResolver.getResource("/apps/2"));
         resourceResolver.commit();
 
-        createConfig(resourceResolver, "2", 10);
+        createConfig(resourceResolver, "2", 10, true);
 
         ResourceChange resourceChange = mock(ResourceChange.class);
         when(resourceChange.getPath()).thenReturn(createConfigPath("/apps/2"));
@@ -150,7 +150,7 @@ public class ProcessorManagerImplTest {
     @Test
     public void testUpdateWithNewProcessor()
             throws LoginException, PersistenceException, InvalidSyntaxException, InterruptedException {
-        createConfig(resourceResolver, "4", 10);
+        createConfig(resourceResolver, "4", 10, true);
         ResourceChange resourceChange = mock(ResourceChange.class);
         when(resourceChange.getPath()).thenReturn(createConfigPath("/apps/4"));
         when(resourceChange.getType()).thenReturn(ChangeType.CHANGED);
@@ -172,8 +172,9 @@ public class ProcessorManagerImplTest {
 
     void createConfigs(ResourceResolver resolver) throws PersistenceException {
         for (int i = 1; i < 4; i++) {
-            createConfig(resolver, Integer.toString(i), i);
+            createConfig(resolver, Integer.toString(i), i, true);
         }
+        createConfig(resolver, "inactive-config", 4, false);
     }
 
     void assertOrderRT(ProcessorConfigurationImpl configuration, String rt, int order) {
@@ -181,7 +182,7 @@ public class ProcessorManagerImplTest {
         assertTrue(configuration.toString().contains(rt));
     }
 
-    void createConfig(ResourceResolver resolver, String appName, int order) throws PersistenceException {
+    void createConfig(ResourceResolver resolver, String appName, int order, boolean enabled) throws PersistenceException {
         Resource root = resourceResolver.create(testRoot, appName, ValueMap.EMPTY);
         Resource configRoot = resourceResolver.create(root, "config", ValueMap.EMPTY);
         Resource rewriterRoot = resourceResolver.create(configRoot, "rewriter", ValueMap.EMPTY);
@@ -189,7 +190,7 @@ public class ProcessorManagerImplTest {
         resolver.create(rewriterRoot, "rewriter-html",
                 ImmutableMap.<String, Object>builder().put("contentTypes", new String[] { "text/html" })
                         .put("resourceTypes", new String[] { createConfigPath("/apps/" + appName) })
-                        .put("enabled", true).put("order", order).put("generatorType", order)
+                        .put("enabled", enabled).put("order", order).put("generatorType", order)
                         .put("serializerType", "htmlwriter").build());
         resolver.commit();
     }
