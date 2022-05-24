@@ -116,7 +116,7 @@ public class ProcessorManagerImpl
     	this.factoryCache.start();
     }
 
-    protected ResourceResolver createResourceResolver() throws LoginException {
+    private ResourceResolver createResourceResolver() throws LoginException {
         return this.resourceResolverFactory.getServiceResourceResolver(null);
     }
 
