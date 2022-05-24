@@ -92,7 +92,7 @@ public class ProcessorManagerImpl
 
     /** loaded processor configurations */
     private final Map<String, ConfigEntry[]> processors = new HashMap<>();
-    
+
     /** Ordered processor configurations. */
     private final List<ProcessorConfiguration> orderedProcessors = new ArrayList<>();
 
