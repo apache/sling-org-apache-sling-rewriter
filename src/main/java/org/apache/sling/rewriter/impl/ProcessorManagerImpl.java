@@ -84,14 +84,14 @@ public class ProcessorManagerImpl
     @Reference
     private ResourceResolverFactory resourceResolverFactory;
 
-    /** loaded processor configurations */
-    private final Map<String, ConfigEntry[]> processors = new HashMap<>();
-
     @Reference(
             policy = ReferencePolicy.DYNAMIC,
             policyOption = ReferencePolicyOption.GREEDY
     )
     private volatile ServiceUserMapped serviceUserMapped;
+    
+    /** loaded processor configurations */
+    private final Map<String, ConfigEntry[]> processors = new HashMap<>();
     
     /** Ordered processor configurations. */
     private final List<ProcessorConfiguration> orderedProcessors = new ArrayList<>();
