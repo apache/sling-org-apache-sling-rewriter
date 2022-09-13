@@ -31,6 +31,10 @@ public interface ProcessorManager {
 
     /**
      * Return a pipeline for a pipeline configuration.
+     * param configuration the configuration for the processor
+     * @param context the processing context
+     * @param configuration the configuration for the processor
+     * @return the processor
      * @throws org.apache.sling.api.SlingException If an error occurs during setup
      */
     Processor getProcessor(ProcessorConfiguration configuration,

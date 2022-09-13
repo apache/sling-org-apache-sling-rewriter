@@ -38,6 +38,7 @@ public interface ProcessorConfiguration {
 
     /**
      * Check if this processor configuration matches for the current request.
+     * @param context the processing context
      * @return true or false
      */
     boolean match(ProcessingContext context);
