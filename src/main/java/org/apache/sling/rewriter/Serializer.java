@@ -29,6 +29,7 @@ public interface Serializer extends ContentHandler {
      * Initialize this component.
      * @param context The invocation context.
      * @param config The configuration for this component.
+     * @throws IOException in case of problems
      */
     void init(ProcessingContext context, ProcessingComponentConfiguration config)
     throws IOException;

@@ -34,6 +34,7 @@ public interface Generator {
      * Initialize this component.
      * @param context The invocation context.
      * @param config The configuration for this component.
+     * @throws IOException in case of any problems
      */
     void init(ProcessingContext context, ProcessingComponentConfiguration config)
     throws IOException;
@@ -53,6 +54,8 @@ public interface Generator {
 
     /**
      * Notify the generator that parsing is finished.
+     * @throws IOException IOException
+     * @throws SAXException SAXException
      */
     void finished() throws IOException, SAXException;
 

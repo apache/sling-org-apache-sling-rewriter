@@ -101,6 +101,8 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
      * The check consists in sending SAX events representing a minimal namespaced document
      * with namespaces defined only with calls to <code>startPrefixMapping</code> (no
      * xmlns:xxx attributes) and check if they are present in the resulting text.
+     * @return if the support is given
+     * @throws Exception in case of any exception during the check
      */
     protected boolean needsNamespacesAsAttributes() throws Exception {
         // Serialize a minimal document to check how namespaces are handled.

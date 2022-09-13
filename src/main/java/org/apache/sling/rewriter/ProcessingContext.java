@@ -30,26 +30,33 @@ public interface ProcessingContext {
 
     /**
      * The current request.
+     * @return the current request
      */
     SlingHttpServletRequest getRequest();
 
     /**
      * The current response.
+     * @return the current response
      */
     SlingHttpServletResponse getResponse();
 
     /**
      * The content type of the response.
+     * @return the content type
      */
     String getContentType();
 
     /**
      * The writer.
+     * @return the writer
+     * @throws IOException in case of problems
      */
     PrintWriter getWriter() throws IOException;
 
     /**
      * The output stream.
+     * @return the outputStream
+     * @throws IOException in case of problems
      */
     OutputStream getOutputStream() throws IOException;
 }

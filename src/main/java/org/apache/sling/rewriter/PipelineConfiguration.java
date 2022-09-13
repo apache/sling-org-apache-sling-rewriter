@@ -24,16 +24,19 @@ public interface PipelineConfiguration extends ProcessorConfiguration {
 
     /**
      * The configuration for the generator.
+     * @return the configuration for the generator
      */
     ProcessingComponentConfiguration getGeneratorConfiguration();
 
     /**
      * The configuration for the serializer.
+     * @return the configuration for the serializer
      */
     ProcessingComponentConfiguration getSerializerConfiguration();
 
     /**
      * The configuration for the transformers.
+     * @return the configuration for the transformers
      */
     ProcessingComponentConfiguration[] getTransformerConfigurations();
 }
