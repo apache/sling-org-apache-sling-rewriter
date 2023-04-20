@@ -17,7 +17,6 @@
 package org.apache.sling.rewriter.impl.components;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -73,6 +72,20 @@ public class Html5SerializerTest {
 
         testSerializer.characters(" & Goodbye".toCharArray(), 0, 10);
         assertEquals("Hello &amp; Goodbye", writer.toString());
+    }
+
+    @Test
+    public void testScript() throws IOException, SAXException {
+
+        testSerializer.startElement("", "script", "", new AttributesImpl());
+
+        testSerializer.characters("alert(\"Hello World!\")".toCharArray(), 0, 21);
+        assertEquals("<script>alert(\"Hello World!\")", writer.toString());
+
+        testSerializer.endElement("", "script", "");
+
+        testSerializer.characters(" & Goodbye".toCharArray(), 0, 10);
+        assertEquals("<script>alert(\"Hello World!\")</script> &amp; Goodbye", writer.toString());
     }
 
     @Test
