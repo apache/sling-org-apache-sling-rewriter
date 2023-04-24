@@ -53,6 +53,7 @@ public class Html5Serializer implements Serializer {
                 "meta", "param", "source", "track", "wbr"));
     }
     private PrintWriter writer;
+    private boolean inScript = false;
 
     @Override
     public void characters(char[] buffer, int offset, int length) throws SAXException {
@@ -62,8 +63,12 @@ public class Html5Serializer implements Serializer {
             if (offset < 0 || offset + length > buffer.length) {
                 throw new SAXException("Offset / length out of bounds");
             }
-            writer.write(
-                    StringEscapeUtils.escapeHtml4(new String(Arrays.copyOfRange(buffer, offset, offset + length))));
+            if (inScript) {
+                writer.write(new String(Arrays.copyOfRange(buffer, offset, offset + length)));
+            } else {
+                writer.write(
+                        StringEscapeUtils.escapeHtml4(new String(Arrays.copyOfRange(buffer, offset, offset + length))));
+            }
         }
     }
 
@@ -84,6 +89,7 @@ public class Html5Serializer implements Serializer {
             writer.write(localName);
             writer.write(CHAR_GT);
         }
+        inScript = false;
     }
 
     @Override
@@ -152,6 +158,11 @@ public class Html5Serializer implements Serializer {
             writer.write("/");
         }
         writer.write(CHAR_GT);
+        if ("script".equals(localName)) {
+            inScript = true;
+        } else {
+            inScript = false;
+        }
     }
 
     private boolean shouldContinue(String localName, Attributes atts, int i) {
