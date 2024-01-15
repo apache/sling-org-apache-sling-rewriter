@@ -17,6 +17,7 @@
 package org.apache.sling.rewriter.impl;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,8 +42,6 @@ public class ProcessingComponentConfigurationImpl implements ProcessingComponent
     /** The configuration map. */
     private final ValueMap configuration;
 
-    private final String descText;
-
     /**
      * Create a new configuration.
      * @param type The type of the component.
@@ -50,18 +49,8 @@ public class ProcessingComponentConfigurationImpl implements ProcessingComponent
      */
     public ProcessingComponentConfigurationImpl(final String type, final ValueMap config) {
         this.type = type;
-        this.configuration = (config == null ? EMPTY_CONFIG : config);
-        final StringBuilder sb = new StringBuilder();
-        sb.append("Config(type=");
-        sb.append(this.type);
-        sb.append(", config=");
-        if ( config == null ) {
-            sb.append("{}");
-        } else {
-            sb.append(config);
-        }
-        sb.append(")");
-        this.descText = sb.toString();
+        this.configuration = (config == null ? EMPTY_CONFIG : new ValueMapDecorator(new HashMap<>(config)));
+        this.configuration.remove("jcr:primaryType");
     }
 
     /**
@@ -78,20 +67,36 @@ public class ProcessingComponentConfigurationImpl implements ProcessingComponent
         return this.type;
     }
 
+    private String getConfigurationString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append('{');
+        for(final Map.Entry<String, Object> entry : this.configuration.entrySet()) {
+            if (sb.length() > 1) {
+                sb.append(", ");
+            }
+            sb.append(entry.getKey());
+            sb.append('=');
+            if (entry.getValue().getClass().isArray()) {
+                sb.append(Arrays.toString((Object[])entry.getValue()));
+            } else {
+                sb.append(entry.getValue());
+            }
+        }
+        sb.append('}');
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
-        return this.descText;
+        return "Config(type=".concat(this.type).concat(", config=").concat(this.getConfigurationString()).concat(")");
     }
 
     void printConfiguration(final PrintWriter pw) {
         pw.print(this.type);
-        if ( this.configuration == EMPTY_CONFIG ) {
-            pw.println();
-        } else {
+        if (!this.configuration.isEmpty()) {
             pw.print(" : ");
-            final Map<String, Object> map = new HashMap<String, Object>(this.configuration);
-            map.remove("jcr:primaryType");
-            pw.println(map);
+            pw.print(this.getConfigurationString());    
         }
+        pw.println();
     }
 }
