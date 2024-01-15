@@ -123,41 +123,24 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
                                       String[] paths,
                                       String[] extensions,
                                       String[] resourceTypes,
-                                      boolean unwrapResources,
-                                      String[] selectors,
-                                      int      order,
-                                      ProcessingComponentConfiguration generatorConfig,
-                                      ProcessingComponentConfiguration[] transformerConfigs,
-                                      ProcessingComponentConfiguration serializerConfig,
-                                      boolean processErrorResponse) {
+                                      String[] selectors) {
         this.name = null;
         this.contentTypes = contentTypes;
         this.resourceTypes = resourceTypes;
-        this.unwrapResources = unwrapResources;
+        this.unwrapResources = false;
         this.selectors = selectors;
         this.paths = paths;
         this.extensions = extensions;
-        this.order = order;
-        this.generatorConfiguration = generatorConfig;
-        this.transformerConfigurations = transformerConfigs;
-        this.serializerConfiguration = serializerConfig;
+        this.order = 0;
+        this.generatorConfiguration = null;
+        this.transformerConfigurations = null;
+        this.serializerConfiguration = null;
         this.processorConfig = null;
         this.isActive = true;
         this.isValid = true;
         this.isPipeline = true;
-        this.processErrorResponse = processErrorResponse;
+        this.processErrorResponse = false;
         this.descString = this.buildDescString();
-    }
-
-    /**
-     * This is the constructor for a pipeline
-     */
-    public ProcessorConfigurationImpl(String[] contentTypes,
-                                      String[] paths,
-                                      String[] extensions,
-                                      String[] resourceTypes,
-                                      String[] selectors) {
-        this(contentTypes, paths, extensions, resourceTypes, false, selectors, 0, null, null, null, false);
     }
 
     /**
@@ -228,34 +211,35 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
             pw.print("Extensions : ");
             pw.println(Arrays.toString(this.extensions));
         }
-        pw.print("Order : ");
-        pw.println(this.order);
-        pw.print("Active : ");
-        pw.println(this.isActive);
-        pw.print("Valid : ");
-        pw.println(this.isValid);
-        pw.print("Process Error Response : ");
-        pw.println(this.processErrorResponse);
-        if ( this.isPipeline ) {
-            pw.println("Pipeline : ");
-            pw.println("    Generator : ");
-            pw.print("        ");
-            printConfiguration(pw, this.generatorConfiguration);
-            pw.println("    Transformers : ");
-            if ( this.transformerConfigurations != null ) {
-                for (int i = 0; i < this.transformerConfigurations.length; i++) {
-                    pw.print("        ");
-                    printConfiguration(pw, this.transformerConfigurations[i]);
+        if (this.name != null) {
+            pw.print("Order : ");
+            pw.println(this.order);
+            pw.print("Active : ");
+            pw.println(this.isActive);
+            pw.print("Valid : ");
+            pw.println(this.isValid);
+            pw.print("Process Error Response : ");
+            pw.println(this.processErrorResponse);
+            if ( this.isPipeline ) {
+                pw.println("Pipeline : ");
+                pw.println("    Generator : ");
+                pw.print("        ");
+                printConfiguration(pw, this.generatorConfiguration);
+                pw.println("    Transformers : ");
+                if ( this.transformerConfigurations != null ) {
+                    for (int i = 0; i < this.transformerConfigurations.length; i++) {
+                        pw.print("        ");
+                        printConfiguration(pw, this.transformerConfigurations[i]);
+                    }
                 }
+                pw.println("    Serializer : ");
+                pw.print("        ");
+                printConfiguration(pw, this.serializerConfiguration);
+            } else {
+                pw.print("Configuration : ");
+                printConfiguration(pw, this.processorConfig);
             }
-            pw.println("    Serializer : ");
-            pw.print("        ");
-            printConfiguration(pw, this.serializerConfiguration);
-        } else {
-            pw.print("Configuration : ");
-            printConfiguration(pw, this.processorConfig);
         }
-
     }
 
     private void printConfiguration(final PrintWriter pw, final ProcessingComponentConfiguration config) {
@@ -294,34 +278,36 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
             sb.append(Arrays.toString(this.extensions));
             sb.append(", ");
         }
-        sb.append("order=");
-        sb.append(this.order);
-        sb.append(", active=");
-        sb.append(this.isActive);
-        sb.append(", valid=");
-        sb.append(this.isValid);
-        sb.append(", processErrorResponse=");
-        sb.append(this.processErrorResponse);
-        if ( this.isPipeline ) {
-            sb.append(", pipeline=(generator=");
-            sb.append(this.generatorConfiguration);
-            sb.append(", transformers=(");
-            if ( this.transformerConfigurations != null ) {
-                for(int i=0; i<this.transformerConfigurations.length; i++) {
-                    if ( i > 0 ) {
-                        sb.append(", ");
+        if (this.name != null) {
+            sb.append("order=");
+            sb.append(this.order);
+            sb.append(", active=");
+            sb.append(this.isActive);
+            sb.append(", valid=");
+            sb.append(this.isValid);
+            sb.append(", processErrorResponse=");
+            sb.append(this.processErrorResponse);
+            if ( this.isPipeline ) {
+                sb.append(", pipeline=(generator=");
+                sb.append(this.generatorConfiguration);
+                sb.append(", transformers=(");
+                if ( this.transformerConfigurations != null ) {
+                    for(int i=0; i<this.transformerConfigurations.length; i++) {
+                        if ( i > 0 ) {
+                            sb.append(", ");
+                        }
+                        sb.append(this.transformerConfigurations[i]);
                     }
-                    sb.append(this.transformerConfigurations[i]);
                 }
+                sb.append(", serializer=");
+                sb.append(this.serializerConfiguration);
+                sb.append(')');
+            } else {
+                sb.append(", config=");
+                sb.append(this.processorConfig);
             }
-            sb.append(", serializer=");
-            sb.append(this.serializerConfiguration);
-            sb.append(')');
-        } else {
-            sb.append(", config=");
-            sb.append(this.processorConfig);
+            sb.append("}");
         }
-        sb.append("}");
         return sb.toString();
     }
 

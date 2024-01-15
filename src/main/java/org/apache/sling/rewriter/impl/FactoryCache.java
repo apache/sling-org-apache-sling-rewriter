@@ -170,6 +170,16 @@ public class FactoryCache {
     private static final Transformer[][] EMPTY_DOUBLE_ARRAY = new Transformer[][] {EMPTY_ARRAY, EMPTY_ARRAY};
 
     /**
+     * Return all global transformer factories
+     * the transformer instances in two arrays.
+     * The first array contains all pre transformers and the second one contains
+     * all post transformers.
+     */
+    public TransformerFactoryEntry[][] getGlobalTransformerFactoryEntries() {
+        return this.transformerTracker.getGlobalTransformerFactoryEntries();
+    }
+
+    /**
      * Lookup all global transformers that apply to the current request and return
      * the transformer instances in two arrays.
      * The first array contains all pre transformers and the second one contains
@@ -215,7 +225,7 @@ public class FactoryCache {
     static final class TransformerFactoryEntry {
         public final TransformerFactory factory;
 
-        private final ProcessorConfiguration configuration;
+        public final ProcessorConfiguration configuration;
 
         public TransformerFactoryEntry(final TransformerFactory factory, final ServiceReference<TransformerFactory> ref) {
             this.factory = factory;

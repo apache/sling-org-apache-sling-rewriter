@@ -40,6 +40,7 @@ import org.apache.sling.rewriter.ProcessingContext;
 import org.apache.sling.rewriter.Processor;
 import org.apache.sling.rewriter.ProcessorConfiguration;
 import org.apache.sling.rewriter.ProcessorManager;
+import org.apache.sling.rewriter.impl.FactoryCache.TransformerFactoryEntry;
 import org.apache.sling.serviceusermapping.ServiceUserMapped;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -266,8 +267,33 @@ public class ProcessorManagerImpl
      * See org.apache.felix.webconsole.ConfigurationPrinter#printConfiguration(java.io.PrintWriter).
      */
     public synchronized void printConfiguration(final PrintWriter pw) {
-        pw.println("Current Apache Sling Rewriter Configuration");
+        pw.println("Apache Sling Rewriter Configuration");
         pw.println("=================================================================");
+        pw.println();
+        final TransformerFactoryEntry[][] factories = this.factoryCache.getGlobalTransformerFactoryEntries();
+        for(int i=0; i<2;i++) {
+            final TransformerFactoryEntry[] globalFactories = factories[i];
+            if (globalFactories.length == 0) {
+                continue;
+            }
+            pw.print("Global ");
+            pw.print(i == 0 ? "Pre-" : "Post-");
+            pw.println("Transformers");
+            pw.println("-----------------------------------------------------------------");
+            for(final TransformerFactoryEntry entry : globalFactories) {
+                pw.print("Transformer : ");
+                pw.println(entry.factory.toString());
+                if (entry.configuration != null) {
+                    if (entry.configuration instanceof ProcessorConfigurationImpl) {
+                        ((ProcessorConfigurationImpl)entry.configuration).printConfiguration(pw);
+                    } else {
+                        pw.println(entry.configuration.toString());
+                    }
+                }
+                pw.println();
+            }
+            pw.println();
+        }
         pw.println("Active Configurations");
         pw.println("-----------------------------------------------------------------");
         // we process the configs in their order
