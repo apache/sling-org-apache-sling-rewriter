@@ -125,12 +125,12 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
                                       String[] resourceTypes,
                                       String[] selectors) {
         this.name = null;
-        this.contentTypes = contentTypes;
-        this.resourceTypes = resourceTypes;
+        this.contentTypes = contentTypes != null && contentTypes.length == 0 ? null : contentTypes;
+        this.resourceTypes = resourceTypes != null && resourceTypes.length == 0 ? null : resourceTypes;
+        this.selectors = selectors != null && selectors.length == 0 ? null : selectors;
+        this.extensions = extensions != null && extensions.length == 0 ? null : extensions;
+        this.paths = paths != null && paths.length == 0 ? null : paths;
         this.unwrapResources = false;
-        this.selectors = selectors;
-        this.paths = paths;
-        this.extensions = extensions;
         this.order = 0;
         this.generatorConfiguration = null;
         this.transformerConfigurations = null;

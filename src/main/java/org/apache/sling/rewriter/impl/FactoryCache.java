@@ -16,7 +16,6 @@
  */
 package org.apache.sling.rewriter.impl;
 
-import org.apache.sling.commons.osgi.OsgiUtil;
 import org.apache.sling.rewriter.Generator;
 import org.apache.sling.rewriter.GeneratorFactory;
 import org.apache.sling.rewriter.ProcessingContext;
@@ -30,6 +29,8 @@ import org.apache.sling.rewriter.TransformerFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.util.converter.Converter;
+import org.osgi.util.converter.Converters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -229,11 +230,12 @@ public class FactoryCache {
 
         public TransformerFactoryEntry(final TransformerFactory factory, final ServiceReference<TransformerFactory> ref) {
             this.factory = factory;
-            final String[] paths = OsgiUtil.toStringArray(ref.getProperty(PROPERTY_PATHS), null);
-            final String[] extensions = OsgiUtil.toStringArray(ref.getProperty(PROPERTY_EXTENSIONS), null);
-            final String[] contentTypes = OsgiUtil.toStringArray(ref.getProperty(PROPERTY_CONTENT_TYPES), null);
-            final String[] resourceTypes = OsgiUtil.toStringArray(ref.getProperty(PROPERTY_RESOURCE_TYPES), null);
-            final String[] selectors = OsgiUtil.toStringArray(ref.getProperty(PROPERTY_SELECTORS), null);
+            final Converter c = Converters.standardConverter();
+            final String[] paths = c.convert(ref.getProperty(PROPERTY_PATHS)).to(String[].class);
+            final String[] extensions = c.convert(ref.getProperty(PROPERTY_EXTENSIONS)).to(String[].class);
+            final String[] contentTypes = c.convert(ref.getProperty(PROPERTY_CONTENT_TYPES)).to(String[].class);
+            final String[] resourceTypes = c.convert(ref.getProperty(PROPERTY_RESOURCE_TYPES)).to(String[].class);
+            final String[] selectors = c.convert(ref.getProperty(PROPERTY_SELECTORS)).to(String[].class);
             final boolean noCheckRequired = (paths == null || paths.length == 0) &&
                                    (extensions == null || extensions.length == 0) &&
                                    (contentTypes == null || contentTypes.length == 0) &&

@@ -68,6 +68,7 @@ public abstract class RewriterTestSupport extends TestSupport {
                 .asOption(),
             // testing
             mavenBundle().groupId("org.jsoup").artifactId("jsoup").versionAsInProject(),
+            mavenBundle().groupId("org.osgi").artifactId("org.osgi.util.converter").versionAsInProject(),
             mavenBundle().groupId("org.apache.commons").artifactId("commons-text").versionAsInProject(),
             mavenBundle().groupId("org.apache.servicemix.bundles").artifactId("org.apache.servicemix.bundles.hamcrest").versionAsInProject(),
             slingResourcePresence(),
