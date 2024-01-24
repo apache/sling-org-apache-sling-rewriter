@@ -42,6 +42,9 @@ public class ProcessingComponentConfigurationImpl implements ProcessingComponent
     /** The configuration map. */
     private final ValueMap configuration;
 
+    /** The description */
+    private final String descText;
+
     /**
      * Create a new configuration.
      * @param type The type of the component.
@@ -51,6 +54,7 @@ public class ProcessingComponentConfigurationImpl implements ProcessingComponent
         this.type = type;
         this.configuration = (config == null ? EMPTY_CONFIG : new ValueMapDecorator(new HashMap<>(config)));
         this.configuration.remove("jcr:primaryType");
+        this.descText = "Config(type=".concat(this.type).concat(", config=").concat(this.getConfigurationString()).concat(")");
     }
 
     /**
@@ -88,7 +92,7 @@ public class ProcessingComponentConfigurationImpl implements ProcessingComponent
 
     @Override
     public String toString() {
-        return "Config(type=".concat(this.type).concat(", config=").concat(this.getConfigurationString()).concat(")");
+        return this.descText;
     }
 
     void printConfiguration(final PrintWriter pw) {
