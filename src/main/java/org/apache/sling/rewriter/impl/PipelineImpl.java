@@ -93,10 +93,12 @@ public class PipelineImpl implements Processor {
             // add all pre rewriter transformers
             transformers = new Transformer[transformerCount];
             for(int i=0; i< rewriters[0].length; i++) {
-                transformers[index] = rewriters[0][i];
-                LOGGER.debug("Using pre transformer: {}.", transformers[index]);
-                transformers[index].init(processingContext, ProcessingComponentConfigurationImpl.EMPTY);
-                index++;
+                if ( rewriters[0][i] != null ) {
+                    transformers[index] = rewriters[0][i];
+                    LOGGER.debug("Using pre transformer: {}.", transformers[index]);
+                    transformers[index].init(processingContext, ProcessingComponentConfigurationImpl.EMPTY);
+                    index++;
+                }
             }
             if ( transformerConfigs != null ) {
                 for(int i=0; i< transformerConfigs.length;i++) {
@@ -112,10 +114,12 @@ public class PipelineImpl implements Processor {
                 }
             }
             for(int i=0; i< rewriters[1].length; i++) {
-                transformers[index] = rewriters[1][i];
-                LOGGER.debug("Using post transformer: {}.", transformers[index]);
-                transformers[index].init(processingContext, ProcessingComponentConfigurationImpl.EMPTY);
-                index++;
+                if ( rewriters[1][i] != null ) {
+                    transformers[index] = rewriters[1][i];
+                    LOGGER.debug("Using post transformer: {}.", transformers[index]);
+                    transformers[index].init(processingContext, ProcessingComponentConfigurationImpl.EMPTY);
+                    index++;
+                }
             }
         } else {
             transformers = EMPTY_TRANSFORMERS;

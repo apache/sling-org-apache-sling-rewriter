@@ -45,7 +45,10 @@ public interface TransformerFactory {
 
     /**
      * Create a new transformer for the pipeline.
-     * @return A new transformer.
+     * If the factory is not able to create a transformer, it should return {@code null}.
+     * If the transformer is not a global transformer and is not optional, returning {@code null} will
+     * fail the pipeline creation.
+     * @return A new transformer or {@code null}
      */
     Transformer createTransformer();
 }
