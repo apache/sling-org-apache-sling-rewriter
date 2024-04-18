@@ -64,6 +64,9 @@ public class FactoryCache {
     /** The optional property for the resource types the component should apply to */
     private static final String PROPERTY_RESOURCE_TYPES = "pipeline.resourceTypes";
 
+    /** The optional property if the component also processes error responses (default is no) */
+    private static final String PROPERTY_PROCESS_ERROR = "pipeline.processError";
+
     /** The logger. */
     static final Logger LOGGER = LoggerFactory.getLogger(FactoryCache.class);
 
@@ -236,13 +239,15 @@ public class FactoryCache {
             final String[] contentTypes = c.convert(ref.getProperty(PROPERTY_CONTENT_TYPES)).to(String[].class);
             final String[] resourceTypes = c.convert(ref.getProperty(PROPERTY_RESOURCE_TYPES)).to(String[].class);
             final String[] selectors = c.convert(ref.getProperty(PROPERTY_SELECTORS)).to(String[].class);
+            final boolean processError = c.convert(ref.getProperty(PROPERTY_PROCESS_ERROR)).defaultValue(false).to(Boolean.class);
             final boolean noCheckRequired = (paths == null || paths.length == 0) &&
                                    (extensions == null || extensions.length == 0) &&
                                    (contentTypes == null || contentTypes.length == 0) &&
                                    (resourceTypes == null || resourceTypes.length == 0) &&
-                                   (selectors == null || selectors.length == 0);
+                                   (selectors == null || selectors.length == 0) &&
+                                   !processError;
             if ( !noCheckRequired ) {
-                this.configuration = new ProcessorConfigurationImpl(contentTypes, paths, extensions, resourceTypes, selectors);
+                this.configuration = new ProcessorConfigurationImpl(contentTypes, paths, extensions, resourceTypes, selectors, processError);
             } else {
                 this.configuration = null;
             }

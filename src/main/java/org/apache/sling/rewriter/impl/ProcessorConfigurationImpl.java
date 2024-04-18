@@ -119,11 +119,12 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
     /**
      * This is the constructor for a pipeline
      */
-    public ProcessorConfigurationImpl(String[] contentTypes,
-                                      String[] paths,
-                                      String[] extensions,
-                                      String[] resourceTypes,
-                                      String[] selectors) {
+    public ProcessorConfigurationImpl(final String[] contentTypes,
+                                      final String[] paths,
+                                      final String[] extensions,
+                                      final String[] resourceTypes,
+                                      final String[] selectors,
+                                      final boolean processError) {
         this.name = null;
         this.contentTypes = contentTypes != null && contentTypes.length == 0 ? null : contentTypes;
         this.resourceTypes = resourceTypes != null && resourceTypes.length == 0 ? null : resourceTypes;
@@ -139,7 +140,7 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
         this.isActive = true;
         this.isValid = true;
         this.isPipeline = true;
-        this.processErrorResponse = false;
+        this.processErrorResponse = processError;
         this.descString = this.buildDescString();
     }
 
@@ -211,6 +212,8 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
             pw.print("Extensions : ");
             pw.println(Arrays.toString(this.extensions));
         }
+        pw.print("Process Error Response : ");
+        pw.println(this.processErrorResponse);
         if (this.name != null) {
             pw.print("Order : ");
             pw.println(this.order);
@@ -218,8 +221,6 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
             pw.println(this.isActive);
             pw.print("Valid : ");
             pw.println(this.isValid);
-            pw.print("Process Error Response : ");
-            pw.println(this.processErrorResponse);
             if ( this.isPipeline ) {
                 pw.println("Pipeline : ");
                 pw.println("    Generator : ");
@@ -276,8 +277,10 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
         if ( this.extensions != null ) {
             sb.append("extensions=");
             sb.append(Arrays.toString(this.extensions));
-            sb.append(", ");
         }
+        sb.append("processErrorResponse=");
+        sb.append(this.processErrorResponse);
+        sb.append(", ");
         if (this.name != null) {
             sb.append("order=");
             sb.append(this.order);
@@ -285,8 +288,6 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
             sb.append(this.isActive);
             sb.append(", valid=");
             sb.append(this.isValid);
-            sb.append(", processErrorResponse=");
-            sb.append(this.processErrorResponse);
             if ( this.isPipeline ) {
                 sb.append(", pipeline=(generator=");
                 sb.append(this.generatorConfiguration);
