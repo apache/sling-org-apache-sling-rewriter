@@ -135,6 +135,12 @@ final class TransformerFactoryServiceTracker extends HashingServiceTrackerCustom
                                 index++;
                             }
                         }
+                        if (globalFactories[0].length > 1) {
+                            Arrays.sort(globalFactories[0]);
+                        }
+                        if (globalFactories[1].length > 1) {
+                            Arrays.sort(globalFactories[1]);
+                        }
                         this.cached = globalFactories;
                     }
                     this.currentTrackingCount = this.getTrackingCount();

@@ -124,6 +124,7 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
                                       final String[] extensions,
                                       final String[] resourceTypes,
                                       final String[] selectors,
+                                      final int order,
                                       final boolean processError) {
         this.name = null;
         this.contentTypes = contentTypes != null && contentTypes.length == 0 ? null : contentTypes;
@@ -132,7 +133,7 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
         this.extensions = extensions != null && extensions.length == 0 ? null : extensions;
         this.paths = paths != null && paths.length == 0 ? null : paths;
         this.unwrapResources = false;
-        this.order = 0;
+        this.order = order;
         this.generatorConfiguration = null;
         this.transformerConfigurations = null;
         this.serializerConfiguration = null;
@@ -214,9 +215,9 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
         }
         pw.print("Process Error Response : ");
         pw.println(this.processErrorResponse);
-        if (this.name != null) {
-            pw.print("Order : ");
-            pw.println(this.order);
+        pw.print("Order : ");
+        pw.println(this.order);
+    if (this.name != null) {
             pw.print("Active : ");
             pw.println(this.isActive);
             pw.print("Valid : ");

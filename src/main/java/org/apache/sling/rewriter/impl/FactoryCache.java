@@ -27,6 +27,7 @@ import org.apache.sling.rewriter.SerializerFactory;
 import org.apache.sling.rewriter.Transformer;
 import org.apache.sling.rewriter.TransformerFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.converter.Converter;
@@ -226,10 +227,12 @@ public class FactoryCache {
         return transformers;
     }
 
-    static final class TransformerFactoryEntry {
+    static final class TransformerFactoryEntry implements Comparable<TransformerFactoryEntry> {
         public final TransformerFactory factory;
 
         public final ProcessorConfiguration configuration;
+
+        public final int order;
 
         public TransformerFactoryEntry(final TransformerFactory factory, final ServiceReference<TransformerFactory> ref) {
             this.factory = factory;
@@ -246,8 +249,15 @@ public class FactoryCache {
                                    (resourceTypes == null || resourceTypes.length == 0) &&
                                    (selectors == null || selectors.length == 0) &&
                                    !processError;
+
+            int order = 0;
+            final Object obj = ref.getProperty(Constants.SERVICE_RANKING);
+            if (obj instanceof Integer) {
+                order = (Integer)obj;
+            }
+            this.order = order;
             if ( !noCheckRequired ) {
-                this.configuration = new ProcessorConfigurationImpl(contentTypes, paths, extensions, resourceTypes, selectors, processError);
+                this.configuration = new ProcessorConfigurationImpl(contentTypes, paths, extensions, resourceTypes, selectors, order, processError);
             } else {
                 this.configuration = null;
             }
@@ -258,6 +268,11 @@ public class FactoryCache {
                 return true;
             }
             return configuration.match(context);
+        }
+
+        @Override
+        public int compareTo(final TransformerFactoryEntry o) {
+            return this.order - o.order;
         }
     }
 }

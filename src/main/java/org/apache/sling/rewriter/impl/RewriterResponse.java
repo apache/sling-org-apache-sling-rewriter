@@ -170,7 +170,7 @@ class RewriterResponse
             if ( config.match(processorContext) ) {
                 try {
                     found = this.processorManager.getProcessor(config, processorContext);
-                    this.request.getRequestProgressTracker().log("Found processor for post processing {0}", config);
+                    this.request.getRequestProgressTracker().log("Found processor for config {0} : {1}", config, found);
                 } catch (final SlingException se) {
                     // if an exception occurs during setup of the pipeline and we are currently
                     // already processing an error, we ignore this!
