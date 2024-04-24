@@ -28,7 +28,7 @@
     </parent>
 
     <artifactId>org.apache.sling.rewriter</artifactId>
-    <version>1.4.2</version>
+    <version>1.4.3-SNAPSHOT</version>
 
     <name>Apache Sling Rewriter</name>
     <description>
@@ -46,7 +46,7 @@
 
     <properties>
         <org.ops4j.pax.exam.version>4.13.3</org.ops4j.pax.exam.version>
-        <project.build.outputTimestamp>1713960753</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1713960928</project.build.outputTimestamp>
     </properties>
 
     <build>
