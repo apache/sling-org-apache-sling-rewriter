@@ -125,12 +125,16 @@ final class TransformerFactoryServiceTracker extends HashingServiceTrackerCustom
                         int index = 0;
                         for(final ServiceReference<TransformerFactory> ref : refs) {
                             if ( isGlobal(ref) ) {
-                                if ( index < preCount ) {
-                                    LOGGER.debug("Initializing pre global TransformerFactory for service ref: {}", ref.getClass());
-                                    globalFactories[0][index] = new TransformerFactoryEntry(this.getService(ref), ref);
+                                LOGGER.debug("Initializing {} global TransformerFactory for service ref: {}", index < preCount ? "pre" : "post", ref.getClass());
+                                final TransformerFactory factory = this.getService(ref);
+                                if ( factory == null) {
+                                    LOGGER.debug("TransformerFactory is null for service ref: {}", ref);
                                 } else {
-                                    LOGGER.debug("Initializing post global TransformerFactory for service ref: {}", ref.getClass());
-                                    globalFactories[1][index - preCount] = new TransformerFactoryEntry(this.getService(ref), ref);
+                                    if ( index < preCount ) {
+                                        globalFactories[0][index] = new TransformerFactoryEntry(factory, ref);
+                                    } else {
+                                        globalFactories[1][index - preCount] = new TransformerFactoryEntry(factory, ref);
+                                    }
                                 }
                                 index++;
                             }

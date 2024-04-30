@@ -201,9 +201,9 @@ public class FactoryCache {
      * @param factories The transformer factories
      * @return The transformer instances
      */
-    private Transformer[][] createTransformers(final TransformerFactory[][] factories) {
-        if ( factories == EMPTY_DOUBLE_ARRAY ) {
-            return FactoryCache.EMPTY_DOUBLE_ARRAY;
+    Transformer[][] createTransformers(final TransformerFactory[][] factories) {
+        if ( factories == TransformerFactoryServiceTracker.EMPTY_DOUBLE_FACTORY_ARRAY ) {
+            return EMPTY_DOUBLE_ARRAY;
         }
         final Transformer[][] transformers = new Transformer[2][];
         for(int arrayIndex = 0; arrayIndex < 2; arrayIndex++) {
@@ -212,13 +212,15 @@ public class FactoryCache {
                 if ( factory == null ) count--;
             }
             if ( count == 0 ) {
-                transformers[arrayIndex] = FactoryCache.EMPTY_ARRAY;
+                transformers[arrayIndex] = EMPTY_ARRAY;
             } else {
                 transformers[arrayIndex] = new Transformer[count];
+                int tIndex = 0;
                 for(int i=0; i < factories[arrayIndex].length; i++) {
                     final TransformerFactory factory = factories[arrayIndex][i];
                     if ( factory != null ) {
-                        transformers[arrayIndex][i] = factory.createTransformer();
+                        transformers[arrayIndex][tIndex] = factory.createTransformer();
+                        tIndex++;
                     }
                 }
             }

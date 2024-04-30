@@ -217,7 +217,7 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
         pw.println(this.processErrorResponse);
         pw.print("Order : ");
         pw.println(this.order);
-    if (this.name != null) {
+        if (this.name != null) {
             pw.print("Active : ");
             pw.println(this.isActive);
             pw.print("Valid : ");
@@ -281,10 +281,9 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
         }
         sb.append("processErrorResponse=");
         sb.append(this.processErrorResponse);
-        sb.append(", ");
+        sb.append(", order=");
+        sb.append(this.order);
         if (this.name != null) {
-            sb.append("order=");
-            sb.append(this.order);
             sb.append(", active=");
             sb.append(this.isActive);
             sb.append(", valid=");
@@ -407,17 +406,17 @@ public class ProcessorConfigurationImpl implements PipelineConfiguration {
         // now check extenstions
         // if no extenstion is configured, we apply to all extenstions
         if ( this.extensions != null && this.extensions.length > 0 ) {
-             boolean found = false;
-             int index = 0;
-             while ( !found && index < this.extensions.length ) {
-                 if ( this.extensions[index].equals(processContext.getRequest().getRequestPathInfo().getExtension()) ) {
-                     found = true;
-                 }
-                 index++;
-             }
-             if ( !found ) {
-                 return false;
-             }
+            boolean found = false;
+            int index = 0;
+            while ( !found && index < this.extensions.length ) {
+                if ( this.extensions[index].equals(processContext.getRequest().getRequestPathInfo().getExtension()) ) {
+                    found = true;
+                }
+                index++;
+            }
+            if ( !found ) {
+                return false;
+            }
         }
         // check resource types
         if ( this.resourceTypes != null && this.resourceTypes.length > 0 ) {
