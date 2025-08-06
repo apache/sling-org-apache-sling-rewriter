@@ -37,7 +37,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -54,7 +54,7 @@ public class ProcessorConfigurationImplTest {
     public void setup() {
         when(processingContext.getContentType()).thenReturn("text/html");
         when(processingContext.getRequest()).thenReturn(context.request());
-        when(processingContext.getResponse()).thenReturn(context.response());
+        //when(processingContext.getResponse()).thenReturn(context.response());
     }
     
     private ProcessorConfigurationImpl buildConfig(Map<String,Object> configProps) {
