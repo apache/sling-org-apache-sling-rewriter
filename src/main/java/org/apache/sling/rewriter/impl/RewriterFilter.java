@@ -41,6 +41,7 @@ import org.osgi.service.component.annotations.Reference;
         property = {
                 Constants.SERVICE_VENDOR + "=The Apache Software Foundation",
                 "sling.filter.scope=request",
+                "sling.filter.scope=forward",
                 "sling.filter.scope=error",
                 Constants.SERVICE_RANKING + ":Integer=2500"
         }
