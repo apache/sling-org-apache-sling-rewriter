@@ -60,6 +60,7 @@ public class ProcessorManagerImplTest {
         Resource root = resourceResolver.getResource("/");
         testRoot = resourceResolver.create(root, "apps", ValueMap.EMPTY);
         createConfigs(resourceResolver);
+        context.registerInjectActivateService(new FactoryCache());
         context.registerInjectActivateService(new ProcessorManagerImpl());
         processorManager = (ProcessorManagerImpl) context.getService(ProcessorManager.class);
     }
