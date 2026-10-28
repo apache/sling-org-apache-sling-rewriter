@@ -20,6 +20,7 @@ package org.apache.sling.rewriter.it.tests;
 
 import java.io.IOException;
 
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -30,8 +31,7 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -40,21 +40,33 @@ public class EmojiIT extends RewriterTestSupport {
     private Document document;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws IOException, InterruptedException {
         final String url = String.format("http://localhost:%s/rewriter/emoji.html", httpPort());
-        document = Jsoup.connect(url).get();
+        // Sling might still be starting up and respond with 503
+        final long timeout = System.currentTimeMillis() + 30_000;
+        while (true) {
+            try {
+                document = Jsoup.connect(url).get();
+                return;
+            } catch (final HttpStatusException e) {
+                if (e.getStatusCode() != 503 || System.currentTimeMillis() > timeout) {
+                    throw e;
+                }
+                Thread.sleep(500);
+            }
+        }
     }
 
     @Test
     public void testTitle() throws IOException {
         final String title = document.title();
-        assertThat(title, is("emoji test"));
+        assertEquals("emoji test", title);
     }
 
     @Test
     public void testContent() throws IOException {
         final Element content = document.getElementById("content");
-        assertThat(content.text(), is("\u2602\uD83D\uDE03 \uD83C\uDF40 \uD83C\uDF40 \uD83C\uDF40 \uD83D\uDE01 \uD83C\uDF40\uD83C\uDF40"));
+        assertEquals("\u2602\uD83D\uDE03 \uD83C\uDF40 \uD83C\uDF40 \uD83C\uDF40 \uD83D\uDE01 \uD83C\uDF40\uD83C\uDF40", content.text());
     }
 
 }

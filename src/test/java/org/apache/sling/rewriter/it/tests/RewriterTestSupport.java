@@ -22,6 +22,7 @@ import javax.inject.Inject;
 
 import org.apache.sling.api.servlets.ServletResolver;
 import org.apache.sling.resource.presence.ResourcePresence;
+import org.apache.sling.testing.paxexam.SlingOptions;
 import org.apache.sling.testing.paxexam.TestSupport;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
@@ -42,6 +43,14 @@ import static org.ops4j.pax.exam.cm.ConfigurationAdminOptions.factoryConfigurati
 
 public abstract class RewriterTestSupport extends TestSupport {
 
+    private static final String OAK_VERSION = "1.74.0";
+
+    private static final String[] OAK_ARTIFACTS = {
+        "oak-api", "oak-authorization-principalbased", "oak-blob", "oak-blob-plugins", "oak-commons",
+        "oak-core", "oak-core-spi", "oak-jackrabbit-api", "oak-jcr", "oak-lucene", "oak-query-spi",
+        "oak-security-spi", "oak-segment-tar", "oak-store-composite", "oak-store-document", "oak-store-spi"
+    };
+
     @Inject
     protected ServletResolver servletResolver;
 
@@ -54,8 +63,19 @@ public abstract class RewriterTestSupport extends TestSupport {
 
     @Configuration
     public Option[] configuration() {
+        // SPI Fly 1.3.8 embeds ASM 9.10.1, required for running on recent JDKs (25+)
+        SlingOptions.versionResolver.setVersion("org.apache.aries.spifly", "org.apache.aries.spifly.dynamic.framework.extension", "1.3.8");
+        // Oak 1.74+ no longer uses Subject.getSubject(), which is unsupported on JDK 24+
+        for (final String oakArtifact : OAK_ARTIFACTS) {
+            SlingOptions.versionResolver.setVersion("org.apache.jackrabbit", oakArtifact, OAK_VERSION);
+        }
+        SlingOptions.versionResolver.setVersion("commons-codec", "commons-codec", "1.17.2");
+        SlingOptions.versionResolver.setVersion("commons-io", "commons-io", "2.18.0");
+        SlingOptions.versionResolver.setVersion("org.apache.commons", "commons-lang3", "3.17.0");
+        SlingOptions.versionResolver.setVersion("org.apache.sling", "org.apache.sling.jcr.oak.server", "1.4.4");
         return options(
             baseConfiguration(),
+            mavenBundle().groupId("org.apache.jackrabbit").artifactId("oak-shaded-guava").version(OAK_VERSION),
             quickstart(),
             // Sling Rewriter
             testBundle("bundle.filename"),
@@ -66,11 +86,13 @@ public abstract class RewriterTestSupport extends TestSupport {
             factoryConfiguration("org.apache.sling.resource.presence.internal.ResourcePresenter")
                 .put("path", "/content/rewriter")
                 .asOption(),
+            factoryConfiguration("org.apache.sling.jcr.repoinit.RepositoryInitializer")
+                .put("scripts", new String[]{"set ACL for everyone\n  allow jcr:read on /\nend"})
+                .asOption(),
             // testing
             mavenBundle().groupId("org.jsoup").artifactId("jsoup").versionAsInProject(),
             mavenBundle().groupId("org.osgi").artifactId("org.osgi.util.converter").versionAsInProject(),
             mavenBundle().groupId("org.apache.commons").artifactId("commons-text").versionAsInProject(),
-            mavenBundle().groupId("org.apache.servicemix.bundles").artifactId("org.apache.servicemix.bundles.hamcrest").versionAsInProject(),
             slingResourcePresence(),
             junitBundles()
         );
