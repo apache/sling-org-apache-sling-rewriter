@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.sling</groupId>
         <artifactId>sling-bundle-parent</artifactId>
-        <version>47</version>
+        <version>66</version>
         <relativePath />
     </parent>
 
@@ -31,66 +31,22 @@
     <version>1.4.5-SNAPSHOT</version>
 
     <name>Apache Sling Rewriter</name>
-    <description>
-        The Apache Sling Rewriter allows configurable post processing of any output
+    <description>The Apache Sling Rewriter allows configurable post processing of any output
         from Apache Sling. The output can be processed by a configurable processor
-        or a configurable pipeline.
-    </description>
+        or a configurable pipeline.</description>
 
     <scm>
         <connection>scm:git:https://gitbox.apache.org/repos/asf/sling-org-apache-sling-rewriter.git</connection>
         <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/sling-org-apache-sling-rewriter.git</developerConnection>
+        <tag>org.apache.sling.rewriter-1.4.2</tag>
         <url>https://github.com/apache/sling-org-apache-sling-rewriter.git</url>
-      <tag>org.apache.sling.rewriter-1.4.2</tag>
-  </scm>
+    </scm>
 
     <properties>
+        <sling.java.version>8</sling.java.version>
         <org.ops4j.pax.exam.version>4.14.0</org.ops4j.pax.exam.version>
         <project.build.outputTimestamp>1714468597</project.build.outputTimestamp>
     </properties>
-
-    <build>
-        <plugins>
-            
-            <plugin>
-                <groupId>org.apache.sling</groupId>
-                <artifactId>sling-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-adapter-metadata</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>generate-adapter-metadata</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <systemProperties>
-                        <property>
-                            <name>bundle.filename</name>
-                            <value>${basedir}/target/${project.build.finalName}.jar</value>
-                        </property>
-                    </systemProperties>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.servicemix.tooling</groupId>
-                <artifactId>depends-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
         <dependency>
@@ -98,7 +54,7 @@
             <artifactId>commons-text</artifactId>
             <version>1.10.0</version>
             <scope>provided</scope>
-         </dependency>
+        </dependency>
         <dependency>
             <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.api</artifactId>
@@ -160,7 +116,7 @@
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>osgi.core</artifactId>
+            <artifactId>org.osgi.framework</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -199,6 +155,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
             <scope>provided</scope>
         </dependency>
         <!-- testing -->
@@ -271,5 +228,48 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.sling</groupId>
+                <artifactId>sling-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-adapter-metadata</id>
+                        <goals>
+                            <goal>generate-adapter-metadata</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <systemProperties>
+                        <property>
+                            <name>bundle.filename</name>
+                            <value>${basedir}/target/${project.build.finalName}.jar</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.servicemix.tooling</groupId>
+                <artifactId>depends-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

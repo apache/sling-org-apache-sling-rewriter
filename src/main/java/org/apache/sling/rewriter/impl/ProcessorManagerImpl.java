@@ -1,18 +1,20 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.sling.rewriter.impl;
 
@@ -55,21 +57,21 @@ import org.slf4j.LoggerFactory;
  * This manager keeps track of configured processors.
  *
  */
-@Component(service = {ProcessorManager.class, ResourceChangeListener.class},
-  property = {
-          Constants.SERVICE_VENDOR + "=The Apache Software Foundation",
-          ResourceChangeListener.CHANGES + "=ADDED",
-          ResourceChangeListener.CHANGES + "=CHANGED",
-          ResourceChangeListener.CHANGES + "=REMOVED",
-          ResourceChangeListener.CHANGES + "=PROVIDER_ADDED",
-          ResourceChangeListener.CHANGES + "=PROVIDER_REMOVED",
-          ResourceChangeListener.PATHS + "=glob:*" + ProcessorManagerImpl.CONFIG_PATH + "/**",
-          "felix.webconsole.label=slingrewriter",
-          "felix.webconsole.title=Sling Rewriter",
-          "felix.webconsole.configprinter.modes=always"
-    })
-public class ProcessorManagerImpl
-    implements ProcessorManager, ResourceChangeListener, ExternalResourceChangeListener  {
+@Component(
+        service = {ProcessorManager.class, ResourceChangeListener.class},
+        property = {
+            Constants.SERVICE_VENDOR + "=The Apache Software Foundation",
+            ResourceChangeListener.CHANGES + "=ADDED",
+            ResourceChangeListener.CHANGES + "=CHANGED",
+            ResourceChangeListener.CHANGES + "=REMOVED",
+            ResourceChangeListener.CHANGES + "=PROVIDER_ADDED",
+            ResourceChangeListener.CHANGES + "=PROVIDER_REMOVED",
+            ResourceChangeListener.PATHS + "=glob:*" + ProcessorManagerImpl.CONFIG_PATH + "/**",
+            "felix.webconsole.label=slingrewriter",
+            "felix.webconsole.title=Sling Rewriter",
+            "felix.webconsole.configprinter.modes=always"
+        })
+public class ProcessorManagerImpl implements ProcessorManager, ResourceChangeListener, ExternalResourceChangeListener {
 
     static final String CONFIG_REL_PATH = "config/rewriter";
     static final String CONFIG_PATH = "/" + CONFIG_REL_PATH;
@@ -82,10 +84,7 @@ public class ProcessorManagerImpl
     @Reference
     private ResourceResolverFactory resourceResolverFactory;
 
-    @Reference(
-        policy = ReferencePolicy.DYNAMIC,
-        policyOption = ReferencePolicyOption.GREEDY
-    )
+    @Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
     private volatile ServiceUserMapped serviceUserMapped;
 
     /** loaded processor configurations */
@@ -105,7 +104,7 @@ public class ProcessorManagerImpl
      * Activate this component.
      */
     @Activate
-	protected void activate() throws LoginException {
+    protected void activate() throws LoginException {
         // create array of search paths for actions and constraints
         this.searchPath = this.initProcessors();
     }
@@ -115,30 +114,31 @@ public class ProcessorManagerImpl
     }
 
     @Override
-	public void onChange(final List<ResourceChange> changes) {
-    	for(final ResourceChange change : changes){
-    		// check if the event handles something in the search paths
+    public void onChange(final List<ResourceChange> changes) {
+        for (final ResourceChange change : changes) {
+            // check if the event handles something in the search paths
             String path = change.getPath();
             int foundPos = -1;
-            for(final String sPath : this.searchPath) {
-                if ( path.startsWith(sPath) ) {
+            for (final String sPath : this.searchPath) {
+                if (path.startsWith(sPath)) {
                     foundPos = sPath.length();
                     break;
                 }
             }
             boolean handled = false;
-            if ( foundPos != -1 ) {
+            if (foundPos != -1) {
                 // now check if this is a rewriter config
                 // relative path after the search path
                 final int firstSlash = path.indexOf('/', foundPos);
                 final int pattern = path.indexOf(CONFIG_PATH, foundPos);
                 // only if firstSlash and pattern are at the same position, this might be a rewriter config
-                if ( firstSlash == pattern && firstSlash != -1 ) {
+                if (firstSlash == pattern && firstSlash != -1) {
                     // the node should be a child of CONFIG_PATH
-                    if ( path.length() > pattern + CONFIG_PATH.length() && path.charAt(pattern + CONFIG_PATH.length()) == '/') {
+                    if (path.length() > pattern + CONFIG_PATH.length()
+                            && path.charAt(pattern + CONFIG_PATH.length()) == '/') {
                         // if a child resource is changed, make sure we have the correct path
                         final int slashPos = path.indexOf('/', pattern + CONFIG_PATH.length() + 1);
-                        if ( slashPos != -1 ) {
+                        if (slashPos != -1) {
                             path = path.substring(0, slashPos);
                         }
                         // we should do the update async as we don't want to block the event delivery
@@ -158,42 +158,41 @@ public class ProcessorManagerImpl
                     }
                 }
             }
-            if ( !handled && change.getType() == ChangeType.REMOVED ) {
+            if (!handled && change.getType() == ChangeType.REMOVED) {
                 final Thread t = new Thread() {
                     @Override
                     public void run() {
                         checkRemoval(change.getPath());
                     }
-
                 };
                 t.start();
             }
-    	}
-
+        }
     }
 
     /**
      * Initializes the current processors
      */
     private String[] initProcessors() throws LoginException {
-        try ( final ResourceResolver resolver = this.createResourceResolver()) {
-            for(final String path : resolver.getSearchPath() ) {
+        try (final ResourceResolver resolver = this.createResourceResolver()) {
+            for (final String path : resolver.getSearchPath()) {
                 // check if the search path exists
                 final Resource spResource = resolver.getResource(path.substring(0, path.length() - 1));
-                if ( spResource != null ) {
+                if (spResource != null) {
                     // now iterate over the child nodes
                     final Iterator<Resource> spIter = spResource.listChildren();
-                    while ( spIter.hasNext() ) {
+                    while (spIter.hasNext()) {
                         // check if the node has a rewriter config
                         final Resource appResource = spIter.next();
                         final Resource parentResource = resolver.getResource(appResource.getPath() + CONFIG_PATH);
-                        if ( parentResource != null ) {
+                        if (parentResource != null) {
                             // now read configs
                             final Iterator<Resource> iter = parentResource.listChildren();
-                            while ( iter.hasNext() ) {
+                            while (iter.hasNext()) {
                                 final Resource configResource = iter.next();
                                 final String key = configResource.getName();
-                                final ProcessorConfigurationImpl config = this.getProcessorConfiguration(configResource);
+                                final ProcessorConfigurationImpl config =
+                                        this.getProcessorConfiguration(configResource);
                                 this.log.debug("Found new processor configuration {}", config);
                                 this.addProcessor(key, configResource.getPath(), config);
                             }
@@ -218,7 +217,7 @@ public class ProcessorManagerImpl
      */
     protected void addProcessor(final String key, final String configPath, final ProcessorConfigurationImpl config) {
         ConfigEntry[] configs = this.processors.get(key);
-        if ( configs == null ) {
+        if (configs == null) {
             configs = new ConfigEntry[1];
             configs[0] = new ConfigEntry(configPath, config);
         } else {
@@ -230,15 +229,15 @@ public class ProcessorManagerImpl
 
         this.processors.put(key, configs);
         // only add active configurations
-        if ( config.isActive() ) {
+        if (config.isActive()) {
             this.orderedProcessors.add(config);
             Collections.sort(this.orderedProcessors, new ProcessorConfiguratorComparator());
         }
     }
 
     private void printConfiguration(final PrintWriter pw, final ConfigEntry entry) {
-        if ( entry.config instanceof ProcessorConfigurationImpl ) {
-            ((ProcessorConfigurationImpl)entry.config).printConfiguration(pw);
+        if (entry.config instanceof ProcessorConfigurationImpl) {
+            ((ProcessorConfigurationImpl) entry.config).printConfiguration(pw);
         } else {
             pw.println(entry.config.toString());
         }
@@ -255,7 +254,7 @@ public class ProcessorManagerImpl
         pw.println("=================================================================");
         pw.println();
         final TransformerFactoryEntry[][] factories = this.factoryCache.getGlobalTransformerFactoryEntries();
-        for(int i=0; i<2;i++) {
+        for (int i = 0; i < 2; i++) {
             final TransformerFactoryEntry[] globalFactories = factories[i];
             if (globalFactories.length == 0) {
                 continue;
@@ -264,12 +263,12 @@ public class ProcessorManagerImpl
             pw.print(i == 0 ? "Pre-" : "Post-");
             pw.println("Transformers");
             pw.println("-----------------------------------------------------------------");
-            for(final TransformerFactoryEntry entry : globalFactories) {
+            for (final TransformerFactoryEntry entry : globalFactories) {
                 pw.print("Transformer : ");
                 pw.println(entry.factory.toString());
                 if (entry.configuration != null) {
                     if (entry.configuration instanceof ProcessorConfigurationImpl) {
-                        ((ProcessorConfigurationImpl)entry.configuration).printConfiguration(pw);
+                        ((ProcessorConfigurationImpl) entry.configuration).printConfiguration(pw);
                     } else {
                         pw.println(entry.configuration.toString());
                     }
@@ -281,17 +280,17 @@ public class ProcessorManagerImpl
         pw.println("Active Configurations");
         pw.println("-----------------------------------------------------------------");
         // we process the configs in their order
-        for(final ProcessorConfiguration config : this.orderedProcessors) {
+        for (final ProcessorConfiguration config : this.orderedProcessors) {
             // search the corresponding full config
-            for(final Map.Entry<String, ConfigEntry[]> entry : this.processors.entrySet()) {
-                if ( entry.getValue().length > 0 && entry.getValue()[0].config == config ) {
+            for (final Map.Entry<String, ConfigEntry[]> entry : this.processors.entrySet()) {
+                if (entry.getValue().length > 0 && entry.getValue()[0].config == config) {
                     pw.print("Configuration ");
                     pw.println(entry.getKey());
                     pw.println();
                     printConfiguration(pw, entry.getValue()[0]);
-                    if ( entry.getValue().length > 1 ) {
+                    if (entry.getValue().length > 1) {
                         pw.println("Overriding configurations from the following resource paths: ");
-                        for(int i=1; i < entry.getValue().length; i++) {
+                        for (int i = 1; i < entry.getValue().length; i++) {
                             pw.print("- ");
                             pw.println(entry.getValue()[i].path);
                         }
@@ -309,19 +308,18 @@ public class ProcessorManagerImpl
      */
     private synchronized void updateProcessor(final String path) {
         final int pos = path.lastIndexOf('/');
-        final String key = path.substring(pos + 1);     
+        final String key = path.substring(pos + 1);
 
-        this.removeProcessor(path);        
+        this.removeProcessor(path);
 
-        try ( final ResourceResolver resolver = this.createResourceResolver()) {
+        try (final ResourceResolver resolver = this.createResourceResolver()) {
             final Resource configResource = resolver.getResource(path);
-            if ( configResource == null ) {
+            if (configResource == null) {
                 return;
             }
             final ProcessorConfigurationImpl config = this.getProcessorConfiguration(configResource);
             this.addProcessor(key, path, config);
-        }
-        catch (LoginException e) {
+        } catch (LoginException e) {
             log.error(e.getMessage(), e);
         }
     }
@@ -335,28 +333,28 @@ public class ProcessorManagerImpl
         // we have to search the config
 
         final ConfigEntry[] configs = this.processors.get(key);
-        if ( configs != null ) {
+        if (configs != null) {
             // search path
             ConfigEntry found = null;
-            for(final ConfigEntry current : configs) {
-                if ( current.path.equals(path) ) {
+            for (final ConfigEntry current : configs) {
+                if (current.path.equals(path)) {
                     found = current;
                     break;
                 }
             }
-            if ( found != null ) {
+            if (found != null) {
                 this.orderedProcessors.remove(found.config);
-                if ( configs.length == 1 ) {
+                if (configs.length == 1) {
                     this.processors.remove(key);
                 } else {
-                    if ( found == configs[0] ) {
+                    if (found == configs[0]) {
                         this.orderedProcessors.add(configs[1].config);
                         Collections.sort(this.orderedProcessors, new ProcessorConfiguratorComparator());
                     }
                     ConfigEntry[] newArray = new ConfigEntry[configs.length - 1];
                     int index = 0;
-                    for(final ConfigEntry current : configs) {
-                        if ( current != found ) {
+                    for (final ConfigEntry current : configs) {
+                        if (current != found) {
                             newArray[index] = current;
                             index++;
                         }
@@ -370,14 +368,14 @@ public class ProcessorManagerImpl
     private synchronized void checkRemoval(final String path) {
         final String prefix = path + "/";
         final List<ConfigEntry> toRemove = new ArrayList<>();
-        for(final Map.Entry<String, ConfigEntry[]> entry : this.processors.entrySet()) {
-            for(final ConfigEntry config : entry.getValue()) {
-                if ( config.path != null && config.path.startsWith(prefix) ) {
+        for (final Map.Entry<String, ConfigEntry[]> entry : this.processors.entrySet()) {
+            for (final ConfigEntry config : entry.getValue()) {
+                if (config.path != null && config.path.startsWith(prefix)) {
                     toRemove.add(config);
                 }
             }
         }
-        for(final ConfigEntry entry : toRemove) {
+        for (final ConfigEntry entry : toRemove) {
             this.removeProcessor(entry.path);
         }
     }
@@ -386,22 +384,21 @@ public class ProcessorManagerImpl
      * @see org.apache.sling.rewriter.ProcessorManager#getProcessor(org.apache.sling.rewriter.ProcessorConfiguration, org.apache.sling.rewriter.ProcessingContext)
      */
     @Override
-    public Processor getProcessor(ProcessorConfiguration configuration,
-                                  ProcessingContext      context) {
-        if ( configuration == null ) {
+    public Processor getProcessor(ProcessorConfiguration configuration, ProcessingContext context) {
+        if (configuration == null) {
             throw new IllegalArgumentException("Processor configuration is missing.");
         }
-        if ( context == null ) {
+        if (context == null) {
             throw new IllegalArgumentException("Processor context is missing.");
         }
         boolean isPipeline = false;
-        if ( configuration instanceof ProcessorConfigurationImpl ) {
-            isPipeline = ((ProcessorConfigurationImpl)configuration).isPipeline();
+        if (configuration instanceof ProcessorConfigurationImpl) {
+            isPipeline = ((ProcessorConfigurationImpl) configuration).isPipeline();
         } else {
             isPipeline = configuration instanceof PipelineConfiguration;
         }
         try {
-            if ( isPipeline ) {
+            if (isPipeline) {
                 final PipelineImpl pipeline = new PipelineImpl(this.factoryCache);
                 pipeline.init(context, configuration);
                 return pipeline;
@@ -429,16 +426,15 @@ public class ProcessorManagerImpl
          */
         @Override
         public int compare(ProcessorConfiguration config0, ProcessorConfiguration config1) {
-            final int o0 = ((ProcessorConfigurationImpl)config0).getOrder();
-            final int o1 = ((ProcessorConfigurationImpl)config1).getOrder();
-            if ( o0 == o1 ) {
+            final int o0 = ((ProcessorConfigurationImpl) config0).getOrder();
+            final int o1 = ((ProcessorConfigurationImpl) config1).getOrder();
+            if (o0 == o1) {
                 return 0;
-            } else if ( o0 < o1 ) {
+            } else if (o0 < o1) {
                 return 1;
             }
             return -1;
         }
-
     }
 
     public static final class ConfigEntry {

@@ -1,32 +1,34 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.sling.rewriter.impl.components;
-
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
+
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.sling.rewriter.Serializer;
 import org.apache.sling.rewriter.SerializerFactory;
@@ -55,7 +57,9 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
     private boolean needsNamespacesAsAttributes;
 
     protected abstract String getOutputFormat();
+
     protected abstract String getDoctypePublic();
+
     protected abstract String getDoctypeSystem();
 
     /**
@@ -69,7 +73,7 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
             logger.error("Unable to create new transformer handler.", e);
         }
         final ContentHandler ch;
-        if ( this.needsNamespacesAsAttributes ) {
+        if (this.needsNamespacesAsAttributes) {
             final NamespaceAsAttributes nsPipeline = new NamespaceAsAttributes(tHandler, this.logger);
             ch = nsPipeline;
         } else {
@@ -129,7 +133,7 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
         return (text.replace('"', '\'').indexOf(check) == -1);
     }
 
-    //--------------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
 
     /**
      * A pipe that ensures that all namespace prefixes are also present as
@@ -156,6 +160,7 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
          * serializer.
          */
         private Map<String, String> uriToPrefixMap = new HashMap<String, String>();
+
         private Map<String, String> prefixToUriMap = new HashMap<String, String>();
 
         /**
@@ -169,7 +174,7 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
 
         public NamespaceAsAttributes(final ContentHandler handler, final Logger logger) {
             this.contentHandler = handler;
-            this.lexicalHandler = (LexicalHandler)handler;
+            this.lexicalHandler = (LexicalHandler) handler;
             this.logger = logger;
         }
 
@@ -187,8 +192,7 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
          * @param start The start position in the array.
          * @param len The number of characters to read from the array.
          */
-        public void characters(char c[], int start, int len)
-        throws SAXException {
+        public void characters(char c[], int start, int len) throws SAXException {
             contentHandler.characters(c, start, len);
         }
 
@@ -199,8 +203,7 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
          * @param start The start position in the array.
          * @param len The number of characters to read from the array.
          */
-        public void ignorableWhitespace(char c[], int start, int len)
-        throws SAXException {
+        public void ignorableWhitespace(char c[], int start, int len) throws SAXException {
             contentHandler.ignorableWhitespace(c, start, len);
         }
 
@@ -211,8 +214,7 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
          * @param data The processing instruction data, or null if none was
          *             supplied.
          */
-        public void processingInstruction(String target, String data)
-        throws SAXException {
+        public void processingInstruction(String target, String data) throws SAXException {
             contentHandler.processingInstruction(target, data);
         }
 
@@ -222,8 +224,7 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
          * @param name The name of the skipped entity.  If it is a  parameter
          *             entity, the name will begin with '%'.
          */
-        public void skippedEntity(String name)
-        throws SAXException {
+        public void skippedEntity(String name) throws SAXException {
             contentHandler.skippedEntity(name);
         }
 
@@ -236,16 +237,14 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
          * @param systemId The declared system identifier for the external DTD
          *                 subset, or null if none was declared.
          */
-        public void startDTD(String name, String publicId, String systemId)
-        throws SAXException {
+        public void startDTD(String name, String publicId, String systemId) throws SAXException {
             lexicalHandler.startDTD(name, publicId, systemId);
         }
 
         /**
          * Report the end of DTD declarations.
          */
-        public void endDTD()
-        throws SAXException {
+        public void endDTD() throws SAXException {
             lexicalHandler.endDTD();
         }
 
@@ -255,8 +254,7 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
          * @param name The name of the entity. If it is a parameter entity, the
          *             name will begin with '%'.
          */
-        public void startEntity(String name)
-        throws SAXException {
+        public void startEntity(String name) throws SAXException {
             lexicalHandler.startEntity(name);
         }
 
@@ -265,24 +263,21 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
          *
          * @param name The name of the entity that is ending.
          */
-        public void endEntity(String name)
-        throws SAXException {
+        public void endEntity(String name) throws SAXException {
             lexicalHandler.endEntity(name);
         }
 
         /**
          * Report the start of a CDATA section.
          */
-        public void startCDATA()
-        throws SAXException {
+        public void startCDATA() throws SAXException {
             lexicalHandler.startCDATA();
         }
 
         /**
          * Report the end of a CDATA section.
          */
-        public void endCDATA()
-        throws SAXException {
+        public void endCDATA() throws SAXException {
             lexicalHandler.endCDATA();
         }
 
@@ -293,8 +288,7 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
          * @param start The starting position in the array.
          * @param len The number of characters to use from the array.
          */
-        public void comment(char ch[], int start, int len)
-        throws SAXException {
+        public void comment(char ch[], int start, int len) throws SAXException {
             lexicalHandler.comment(ch, start, len);
         }
 
@@ -367,8 +361,8 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
                         if (qName.equals(attrs.getQName(attr))) {
                             // Check if mapping and attribute URI match
                             if (!uri.equals(attrs.getValue(attr))) {
-                                logger.error("URI in prefix mapping and attribute do not match : '"
-                                                  + uri + "' - '" + attrs.getURI(attr) + "'");
+                                logger.error("URI in prefix mapping and attribute do not match : '" + uri + "' - '"
+                                        + attrs.getURI(attr) + "'");
                                 throw new SAXException("URI in prefix mapping and attribute do not match");
                             }
                             found = true;
@@ -406,7 +400,6 @@ public abstract class AbstractTraxSerializerFactory implements SerializerFactory
                 this.contentHandler.startElement(eltUri, eltLocalName, eltQName, attrs);
             }
         }
-
 
         /**
          * Receive notification of the end of an element.

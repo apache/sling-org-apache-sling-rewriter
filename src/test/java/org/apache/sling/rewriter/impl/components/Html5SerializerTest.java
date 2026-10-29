@@ -1,23 +1,22 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.sling.rewriter.impl.components;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -33,6 +32,9 @@ import org.mockito.Mockito;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 public class Html5SerializerTest {
 
     private ProcessingContext context;
@@ -46,8 +48,8 @@ public class Html5SerializerTest {
         writer = Mockito.spy(new StringWriter());
         Mockito.when(context.getWriter()).thenReturn(new PrintWriter(writer));
 
-        config = new ProcessingComponentConfigurationImpl("/apps/config",
-                new ValueMapDecorator(Collections.emptyMap()));
+        config =
+                new ProcessingComponentConfigurationImpl("/apps/config", new ValueMapDecorator(Collections.emptyMap()));
 
         testSerializer = new Html5Serializer();
         testSerializer.init(context, config);
@@ -146,7 +148,8 @@ public class Html5SerializerTest {
 
         testSerializer.startElement("", "input", "input", atts);
 
-        assertEquals("<input name=\"bob\" value=\"&quot;&lt;script&gt;alert('XSS')&lt;/script&gt;&quot;\"/>",
+        assertEquals(
+                "<input name=\"bob\" value=\"&quot;&lt;script&gt;alert('XSS')&lt;/script&gt;&quot;\"/>",
                 writer.toString());
     }
 
@@ -175,7 +178,7 @@ public class Html5SerializerTest {
     public void testNoOp() throws SAXException {
         testSerializer.dispose();
         testSerializer.endPrefixMapping("s");
-        testSerializer.ignorableWhitespace(new char[] { 'd', 'u', 'd', 'e' }, 0, 4);
+        testSerializer.ignorableWhitespace(new char[] {'d', 'u', 'd', 'e'}, 0, 4);
         testSerializer.processingInstruction("do", "the dew");
         testSerializer.setDocumentLocator(null);
         testSerializer.skippedEntity("skippy");

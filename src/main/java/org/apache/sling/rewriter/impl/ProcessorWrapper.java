@@ -1,18 +1,20 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.sling.rewriter.impl;
 
@@ -31,11 +33,9 @@ public class ProcessorWrapper implements Processor {
 
     private final Processor delegatee;
 
-    public ProcessorWrapper(final ProcessorConfiguration config,
-                            final FactoryCache factoryCache)
-    throws IOException {
+    public ProcessorWrapper(final ProcessorConfiguration config, final FactoryCache factoryCache) throws IOException {
         this.delegatee = factoryCache.getProcessor(config.getType());
-        if ( this.delegatee == null ) {
+        if (this.delegatee == null) {
             throw new IOException("Unable to get processor component for type " + config.getType());
         }
     }
@@ -64,8 +64,7 @@ public class ProcessorWrapper implements Processor {
     /**
      * @see org.apache.sling.rewriter.Processor#init(org.apache.sling.rewriter.ProcessingContext, org.apache.sling.rewriter.ProcessorConfiguration)
      */
-    public void init(ProcessingContext context, ProcessorConfiguration config)
-    throws IOException {
+    public void init(ProcessingContext context, ProcessorConfiguration config) throws IOException {
         delegatee.init(context, config);
     }
 

@@ -1,29 +1,26 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
 package org.apache.sling.rewriter.impl;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
@@ -40,7 +37,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.osgi.framework.InvalidSyntaxException;
 
-import com.google.common.collect.ImmutableMap;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProcessorManagerImplTest {
 
@@ -54,8 +54,8 @@ public class ProcessorManagerImplTest {
     @Before
     public void setUp() throws LoginException, PersistenceException {
         ServiceUserMapped serviceUserMapped = Mockito.mock(ServiceUserMapped.class);
-        context.registerService(ServiceUserMapped.class,serviceUserMapped);
-        
+        context.registerService(ServiceUserMapped.class, serviceUserMapped);
+
         resourceResolver = context.resourceResolver();
         Resource root = resourceResolver.getResource("/");
         testRoot = resourceResolver.create(root, "apps", ValueMap.EMPTY);
@@ -68,12 +68,21 @@ public class ProcessorManagerImplTest {
     @Test
     public void testActivate() throws LoginException, InvalidSyntaxException {
         assertEquals(3, processorManager.getProcessorConfigurations().size());
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
-                createConfigPath("/apps/3"), 3);
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
-                createConfigPath("/apps/2"), 2);
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2),
-                createConfigPath("/apps/1"), 1);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(0),
+                createConfigPath("/apps/3"),
+                3);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(1),
+                createConfigPath("/apps/2"),
+                2);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(2),
+                createConfigPath("/apps/1"),
+                1);
     }
 
     @Test
@@ -86,14 +95,21 @@ public class ProcessorManagerImplTest {
         Thread.sleep(1000);
 
         assertEquals(2, processorManager.getProcessorConfigurations().size());
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
-                createConfigPath("/apps/3"), 3);
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
-                createConfigPath("/apps/1"), 1);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(0),
+                createConfigPath("/apps/3"),
+                3);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(1),
+                createConfigPath("/apps/1"),
+                1);
     }
-    
+
     @Test
-    public void testRemoveProcessorWithNonExistingPath() throws LoginException, InvalidSyntaxException, InterruptedException {
+    public void testRemoveProcessorWithNonExistingPath()
+            throws LoginException, InvalidSyntaxException, InterruptedException {
         ResourceChange resourceChange = mock(ResourceChange.class);
         when(resourceChange.getPath()).thenReturn(createConfigPath("/apps/2nonexisting"));
         when(resourceChange.getType()).thenReturn(ChangeType.REMOVED);
@@ -102,14 +118,23 @@ public class ProcessorManagerImplTest {
         Thread.sleep(1000);
 
         assertEquals(3, processorManager.getProcessorConfigurations().size());
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
-                createConfigPath("/apps/3"), 3);
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
-                createConfigPath("/apps/2"), 2);
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2),
-                createConfigPath("/apps/1"), 1);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(0),
+                createConfigPath("/apps/3"),
+                3);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(1),
+                createConfigPath("/apps/2"),
+                2);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(2),
+                createConfigPath("/apps/1"),
+                1);
     }
-    
+
     @Test
     public void testRemoveParentPath() throws LoginException, InvalidSyntaxException, InterruptedException {
         ResourceChange resourceChange = mock(ResourceChange.class);
@@ -120,10 +145,16 @@ public class ProcessorManagerImplTest {
         Thread.sleep(1000);
 
         assertEquals(2, processorManager.getProcessorConfigurations().size());
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
-                createConfigPath("/apps/3"), 3);
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
-                createConfigPath("/apps/1"), 1);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(0),
+                createConfigPath("/apps/3"),
+                3);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(1),
+                createConfigPath("/apps/1"),
+                1);
     }
 
     @Test
@@ -144,14 +175,23 @@ public class ProcessorManagerImplTest {
 
         assertEquals(3, processorManager.getProcessorConfigurations().size());
 
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
-                createConfigPath("/apps/2"), 10);
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
-                createConfigPath("/apps/3"), 3);
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2),
-                createConfigPath("/apps/1"), 1);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(0),
+                createConfigPath("/apps/2"),
+                10);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(1),
+                createConfigPath("/apps/3"),
+                3);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(2),
+                createConfigPath("/apps/1"),
+                1);
     }
-    
+
     @Test
     public void testUpdateProcessorWithNonExistingPath()
             throws LoginException, PersistenceException, InvalidSyntaxException, InterruptedException {
@@ -163,13 +203,21 @@ public class ProcessorManagerImplTest {
         Thread.sleep(1000);
 
         assertEquals(3, processorManager.getProcessorConfigurations().size());
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
-                createConfigPath("/apps/3"), 3);
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
-                createConfigPath("/apps/2"), 2);
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2),
-                createConfigPath("/apps/1"), 1);
-
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(0),
+                createConfigPath("/apps/3"),
+                3);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(1),
+                createConfigPath("/apps/2"),
+                2);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(2),
+                createConfigPath("/apps/1"),
+                1);
     }
 
     @Test
@@ -184,15 +232,26 @@ public class ProcessorManagerImplTest {
         Thread.sleep(1000);
 
         assertEquals(4, processorManager.getProcessorConfigurations().size());
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(0),
-                createConfigPath("/apps/4"), 10);
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(1),
-                createConfigPath("/apps/3"), 3);
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(2),
-                createConfigPath("/apps/2"), 2);
-        assertOrderRT((ProcessorConfigurationImpl) processorManager.getProcessorConfigurations().get(3),
-                createConfigPath("/apps/1"), 1);
-
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(0),
+                createConfigPath("/apps/4"),
+                10);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(1),
+                createConfigPath("/apps/3"),
+                3);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(2),
+                createConfigPath("/apps/2"),
+                2);
+        assertOrderRT(
+                (ProcessorConfigurationImpl)
+                        processorManager.getProcessorConfigurations().get(3),
+                createConfigPath("/apps/1"),
+                1);
     }
 
     void createConfigs(ResourceResolver resolver) throws PersistenceException {
@@ -207,16 +266,23 @@ public class ProcessorManagerImplTest {
         assertTrue(configuration.toString().contains(rt));
     }
 
-    void createConfig(ResourceResolver resolver, String appName, int order, boolean enabled) throws PersistenceException {
+    void createConfig(ResourceResolver resolver, String appName, int order, boolean enabled)
+            throws PersistenceException {
         Resource root = resourceResolver.create(testRoot, appName, ValueMap.EMPTY);
         Resource configRoot = resourceResolver.create(root, "config", ValueMap.EMPTY);
         Resource rewriterRoot = resourceResolver.create(configRoot, "rewriter", ValueMap.EMPTY);
 
-        resolver.create(rewriterRoot, "rewriter-html",
-                ImmutableMap.<String, Object>builder().put("contentTypes", new String[] { "text/html" })
-                        .put("resourceTypes", new String[] { createConfigPath("/apps/" + appName) })
-                        .put("enabled", enabled).put("order", order).put("generatorType", order)
-                        .put("serializerType", "htmlwriter").build());
+        resolver.create(
+                rewriterRoot,
+                "rewriter-html",
+                ImmutableMap.<String, Object>builder()
+                        .put("contentTypes", new String[] {"text/html"})
+                        .put("resourceTypes", new String[] {createConfigPath("/apps/" + appName)})
+                        .put("enabled", enabled)
+                        .put("order", order)
+                        .put("generatorType", order)
+                        .put("serializerType", "htmlwriter")
+                        .build());
         resolver.commit();
     }
 
