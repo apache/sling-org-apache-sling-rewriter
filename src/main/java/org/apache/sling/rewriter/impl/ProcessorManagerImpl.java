@@ -42,10 +42,7 @@ import org.apache.sling.rewriter.ProcessorConfiguration;
 import org.apache.sling.rewriter.ProcessorManager;
 import org.apache.sling.rewriter.impl.FactoryCache.TransformerFactoryEntry;
 import org.apache.sling.serviceusermapping.ServiceUserMapped;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -101,33 +98,20 @@ public class ProcessorManagerImpl
     private String[] searchPath;
 
     /** The factory cache. */
+    @Reference
     private FactoryCache factoryCache;
 
     /**
      * Activate this component.
-     * @param ctx
      */
     @Activate
-	protected void activate(final BundleContext ctx)
-    throws LoginException, InvalidSyntaxException {
-        this.factoryCache = new FactoryCache(ctx);
-
+	protected void activate() throws LoginException {
         // create array of search paths for actions and constraints
         this.searchPath = this.initProcessors();
-    	this.factoryCache.start();
     }
 
     private ResourceResolver createResourceResolver() throws LoginException {
         return this.resourceResolverFactory.getServiceResourceResolver(null);
-    }
-
-    /**
-     * Deactivate this component.
-     * @param ctx
-     */
-    protected void deactivate(final ComponentContext ctx) {
-        this.factoryCache.stop();
-        this.factoryCache = null;
     }
 
     @Override
