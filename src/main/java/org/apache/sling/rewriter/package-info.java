@@ -21,4 +21,3 @@
 package org.apache.sling.rewriter;
 
 import org.osgi.annotation.versioning.Version;
-

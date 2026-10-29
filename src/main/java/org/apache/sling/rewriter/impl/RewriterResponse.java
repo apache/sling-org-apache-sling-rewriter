@@ -1,18 +1,20 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.sling.rewriter.impl;
 
@@ -37,12 +39,14 @@ import org.xml.sax.ContentHandler;
 /**
  * This response is used to pass the output through the rewriter pipeline.
  */
-@Adaptable(adaptableClass=SlingHttpServletResponse.class, adapters={
-    @Adapter(value=ContentHandler.class,
-            condition="When the response is being processed through the Sling Rewriter filter.")
-})
-class RewriterResponse
-    extends SlingHttpServletResponseWrapper {
+@Adaptable(
+        adaptableClass = SlingHttpServletResponse.class,
+        adapters = {
+            @Adapter(
+                    value = ContentHandler.class,
+                    condition = "When the response is being processed through the Sling Rewriter filter.")
+        })
+class RewriterResponse extends SlingHttpServletResponseWrapper {
 
     /** The current request. */
     private final SlingHttpServletRequest request;
@@ -64,9 +68,8 @@ class RewriterResponse
      * @param request The sling request.
      * @param delegatee The SlingHttpServletResponse wrapped by this instance.
      */
-    public RewriterResponse(SlingHttpServletRequest request,
-                            SlingHttpServletResponse delegatee,
-                            ProcessorManager processorManager) {
+    public RewriterResponse(
+            SlingHttpServletRequest request, SlingHttpServletResponse delegatee, ProcessorManager processorManager) {
         super(delegatee);
         this.processorManager = processorManager;
         this.request = request;
@@ -86,7 +89,7 @@ class RewriterResponse
      * @see javax.servlet.ServletResponseWrapper#getWriter()
      */
     public PrintWriter getWriter() throws IOException {
-        if ( this.processor != null && this.writer == null ) {
+        if (this.processor != null && this.writer == null) {
             return new PrintWriter(new Writer() {
 
                 @Override
@@ -100,18 +103,17 @@ class RewriterResponse
                 }
 
                 @Override
-                public void write(char[] cbuf, int off, int len)
-                throws IOException {
+                public void write(char[] cbuf, int off, int len) throws IOException {
                     // nothing to do
                 }
-             });
+            });
         }
         if (writer == null) {
             this.processor = this.getProcessor();
-            if ( this.processor != null ) {
+            if (this.processor != null) {
                 this.writer = this.processor.getWriter();
             }
-            if ( this.writer == null ) {
+            if (this.writer == null) {
                 this.writer = super.getWriter();
             }
         }
@@ -134,7 +136,7 @@ class RewriterResponse
      * @throws IOException
      */
     public void finished(final boolean errorOccured) throws IOException {
-        if ( this.processor != null ) {
+        if (this.processor != null) {
             this.processor.finished(errorOccured);
             this.processor = null;
         }
@@ -146,11 +148,11 @@ class RewriterResponse
      * @see org.apache.sling.api.adapter.Adaptable#adaptTo(java.lang.Class)
      */
     public <AdapterType> AdapterType adaptTo(Class<AdapterType> type) {
-        if ( type == ContentHandler.class ) {
+        if (type == ContentHandler.class) {
             this.processor = this.getProcessor();
-            if ( this.processor != null ) {
+            if (this.processor != null) {
                 @SuppressWarnings("unchecked")
-                final AdapterType object = (AdapterType)this.processor.getContentHandler();
+                final AdapterType object = (AdapterType) this.processor.getContentHandler();
                 return object;
             }
         }
@@ -161,22 +163,27 @@ class RewriterResponse
      * Search the first matching processor
      */
     private Processor getProcessor() {
-        final ProcessingContext processorContext = new ServletProcessingContext(this.request, this, this.getSlingResponse(), this.contentType);
+        final ProcessingContext processorContext =
+                new ServletProcessingContext(this.request, this, this.getSlingResponse(), this.contentType);
         Processor found = null;
         final List<ProcessorConfiguration> processorConfigs = this.processorManager.getProcessorConfigurations();
         final Iterator<ProcessorConfiguration> i = processorConfigs.iterator();
-        while ( found == null && i.hasNext() ) {
+        while (found == null && i.hasNext()) {
             final ProcessorConfiguration config = i.next();
-            if ( config.match(processorContext) ) {
+            if (config.match(processorContext)) {
                 try {
                     found = this.processorManager.getProcessor(config, processorContext);
                     this.request.getRequestProgressTracker().log("Found processor for config {0} : {1}", config, found);
                 } catch (final SlingException se) {
                     // if an exception occurs during setup of the pipeline and we are currently
                     // already processing an error, we ignore this!
-                    if ( processorContext.getRequest().getAttribute("javax.servlet.error.status_code") != null ) {
-                        this.request.getRequestProgressTracker().log("Ignoring found processor for post processing {0}" +
-                                " as an error occured ({1}) during setup while processing another error.", config, se);
+                    if (processorContext.getRequest().getAttribute("javax.servlet.error.status_code") != null) {
+                        this.request
+                                .getRequestProgressTracker()
+                                .log(
+                                        "Ignoring found processor for post processing {0}"
+                                                + " as an error occured ({1}) during setup while processing another error.",
+                                        config, se);
                     } else {
                         throw se;
                     }

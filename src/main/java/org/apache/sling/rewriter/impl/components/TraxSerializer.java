@@ -1,28 +1,30 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.sling.rewriter.impl.components;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Properties;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Properties;
 
 import org.apache.sling.rewriter.ProcessingComponentConfiguration;
 import org.apache.sling.rewriter.ProcessingContext;
@@ -50,13 +52,14 @@ public class TraxSerializer implements Serializer, LexicalHandler {
     private final ContentHandler contentHandler;
     private final LexicalHandler lexicalHandler;
 
-    public TraxSerializer(final TransformerHandler transformerHandler,
-                          final ContentHandler handler,
-                          final String outputFormat,
-                          final String doctypePublic,
-                          final String doctypeSystem) {
+    public TraxSerializer(
+            final TransformerHandler transformerHandler,
+            final ContentHandler handler,
+            final String outputFormat,
+            final String doctypePublic,
+            final String doctypeSystem) {
         this.contentHandler = handler;
-        this.lexicalHandler = (LexicalHandler)handler;
+        this.lexicalHandler = (LexicalHandler) handler;
         this.transformerHandler = transformerHandler;
         this.format.put(OutputKeys.METHOD, outputFormat);
         this.format.put(OutputKeys.DOCTYPE_PUBLIC, doctypePublic);
@@ -66,13 +69,11 @@ public class TraxSerializer implements Serializer, LexicalHandler {
     /**
      * @see org.apache.sling.rewriter.Serializer#init(org.apache.sling.rewriter.ProcessingContext, org.apache.sling.rewriter.ProcessingComponentConfiguration)
      */
-    public void init(ProcessingContext context,
-                     ProcessingComponentConfiguration config)
-    throws IOException {
-        if ( this.transformerHandler == null ) {
+    public void init(ProcessingContext context, ProcessingComponentConfiguration config) throws IOException {
+        if (this.transformerHandler == null) {
             throw new IOException("Transformer handler could not be instantiated.");
         }
-        if ( context.getResponse().getCharacterEncoding() != null ) {
+        if (context.getResponse().getCharacterEncoding() != null) {
             this.format.put(OutputKeys.ENCODING, context.getResponse().getCharacterEncoding());
         } else {
             this.format.put(OutputKeys.ENCODING, DEFAULT_ENCODING);
@@ -132,7 +133,7 @@ public class TraxSerializer implements Serializer, LexicalHandler {
             this.transformerHandler.setResult(new StreamResult(out));
         } catch (Exception e) {
             final String message = "Cannot set XMLSerializer outputstream";
-            throw ((IOException)new IOException(message).initCause(e));
+            throw ((IOException) new IOException(message).initCause(e));
         }
     }
 
@@ -153,133 +154,116 @@ public class TraxSerializer implements Serializer, LexicalHandler {
     /**
      * @see org.xml.sax.ContentHandler#startDocument()
      */
-    public void startDocument()
-    throws SAXException {
+    public void startDocument() throws SAXException {
         contentHandler.startDocument();
     }
 
     /**
      * @see org.xml.sax.ContentHandler#endDocument()
      */
-    public void endDocument()
-    throws SAXException {
+    public void endDocument() throws SAXException {
         contentHandler.endDocument();
     }
 
     /**
      * @see org.xml.sax.ContentHandler#startPrefixMapping(java.lang.String, java.lang.String)
      */
-    public void startPrefixMapping(String prefix, String uri)
-    throws SAXException {
+    public void startPrefixMapping(String prefix, String uri) throws SAXException {
         contentHandler.startPrefixMapping(prefix, uri);
     }
 
     /**
      * @see org.xml.sax.ContentHandler#endPrefixMapping(java.lang.String)
      */
-    public void endPrefixMapping(String prefix)
-    throws SAXException {
+    public void endPrefixMapping(String prefix) throws SAXException {
         contentHandler.endPrefixMapping(prefix);
     }
 
-    public void startElement(String uri, String loc, String raw, Attributes a)
-    throws SAXException {
+    public void startElement(String uri, String loc, String raw, Attributes a) throws SAXException {
         contentHandler.startElement(uri, loc, raw, a);
     }
 
     /**
      * @see org.xml.sax.ContentHandler#endElement(java.lang.String, java.lang.String, java.lang.String)
      */
-    public void endElement(String uri, String loc, String raw)
-    throws SAXException {
+    public void endElement(String uri, String loc, String raw) throws SAXException {
         contentHandler.endElement(uri, loc, raw);
     }
 
     /**
      * @see org.xml.sax.ContentHandler#characters(char[], int, int)
      */
-    public void characters(char c[], int start, int len)
-    throws SAXException {
+    public void characters(char c[], int start, int len) throws SAXException {
         contentHandler.characters(c, start, len);
     }
 
     /**
      * @see org.xml.sax.ContentHandler#ignorableWhitespace(char[], int, int)
      */
-    public void ignorableWhitespace(char c[], int start, int len)
-    throws SAXException {
+    public void ignorableWhitespace(char c[], int start, int len) throws SAXException {
         contentHandler.ignorableWhitespace(c, start, len);
     }
 
     /**
      * @see org.xml.sax.ContentHandler#processingInstruction(java.lang.String, java.lang.String)
      */
-    public void processingInstruction(String target, String data)
-    throws SAXException {
+    public void processingInstruction(String target, String data) throws SAXException {
         contentHandler.processingInstruction(target, data);
     }
 
     /**
      * @see org.xml.sax.ContentHandler#skippedEntity(java.lang.String)
      */
-    public void skippedEntity(String name)
-    throws SAXException {
+    public void skippedEntity(String name) throws SAXException {
         contentHandler.skippedEntity(name);
     }
 
     /**
      * @see org.xml.sax.ext.LexicalHandler#startDTD(java.lang.String, java.lang.String, java.lang.String)
      */
-    public void startDTD(String name, String publicId, String systemId)
-    throws SAXException {
+    public void startDTD(String name, String publicId, String systemId) throws SAXException {
         lexicalHandler.startDTD(name, publicId, systemId);
     }
 
     /**
      * @see org.xml.sax.ext.LexicalHandler#endDTD()
      */
-    public void endDTD()
-    throws SAXException {
+    public void endDTD() throws SAXException {
         lexicalHandler.endDTD();
     }
 
     /**
      * @see org.xml.sax.ext.LexicalHandler#startEntity(java.lang.String)
      */
-    public void startEntity(String name)
-    throws SAXException {
+    public void startEntity(String name) throws SAXException {
         lexicalHandler.startEntity(name);
     }
 
     /**
      * @see org.xml.sax.ext.LexicalHandler#endEntity(java.lang.String)
      */
-    public void endEntity(String name)
-    throws SAXException {
+    public void endEntity(String name) throws SAXException {
         lexicalHandler.endEntity(name);
     }
 
     /**
      * @see org.xml.sax.ext.LexicalHandler#startCDATA()
      */
-    public void startCDATA()
-    throws SAXException {
+    public void startCDATA() throws SAXException {
         lexicalHandler.startCDATA();
     }
 
     /**
      * @see org.xml.sax.ext.LexicalHandler#endCDATA()
      */
-    public void endCDATA()
-    throws SAXException {
+    public void endCDATA() throws SAXException {
         lexicalHandler.endCDATA();
     }
 
     /**
      * @see org.xml.sax.ext.LexicalHandler#comment(char[], int, int)
      */
-    public void comment(char ch[], int start, int len)
-    throws SAXException {
+    public void comment(char ch[], int start, int len) throws SAXException {
         lexicalHandler.comment(ch, start, len);
     }
 }

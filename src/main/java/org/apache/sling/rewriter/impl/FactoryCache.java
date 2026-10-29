@@ -1,18 +1,20 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.sling.rewriter.impl;
 
@@ -79,9 +81,13 @@ public class FactoryCache {
     private final TransformerFactoryCache transformerFactories = new TransformerFactoryCache();
     private final FactoryMap<ProcessorFactory> processorFactories = new FactoryMap<>();
 
-    @Reference(service = GeneratorFactory.class, cardinality = ReferenceCardinality.MULTIPLE,
-            policy = ReferencePolicy.DYNAMIC, updated = "bindGeneratorFactory")
-    protected void bindGeneratorFactory(final ServiceReference<GeneratorFactory> reference, final GeneratorFactory factory) {
+    @Reference(
+            service = GeneratorFactory.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            updated = "bindGeneratorFactory")
+    protected void bindGeneratorFactory(
+            final ServiceReference<GeneratorFactory> reference, final GeneratorFactory factory) {
         this.generatorFactories.bind(reference, factory);
     }
 
@@ -89,9 +95,13 @@ public class FactoryCache {
         this.generatorFactories.unbind(reference);
     }
 
-    @Reference(service = SerializerFactory.class, cardinality = ReferenceCardinality.MULTIPLE,
-            policy = ReferencePolicy.DYNAMIC, updated = "bindSerializerFactory")
-    protected void bindSerializerFactory(final ServiceReference<SerializerFactory> reference, final SerializerFactory factory) {
+    @Reference(
+            service = SerializerFactory.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            updated = "bindSerializerFactory")
+    protected void bindSerializerFactory(
+            final ServiceReference<SerializerFactory> reference, final SerializerFactory factory) {
         this.serializerFactories.bind(reference, factory);
     }
 
@@ -99,9 +109,13 @@ public class FactoryCache {
         this.serializerFactories.unbind(reference);
     }
 
-    @Reference(service = TransformerFactory.class, cardinality = ReferenceCardinality.MULTIPLE,
-            policy = ReferencePolicy.DYNAMIC, updated = "bindTransformerFactory")
-    protected void bindTransformerFactory(final ServiceReference<TransformerFactory> reference, final TransformerFactory factory) {
+    @Reference(
+            service = TransformerFactory.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            updated = "bindTransformerFactory")
+    protected void bindTransformerFactory(
+            final ServiceReference<TransformerFactory> reference, final TransformerFactory factory) {
         this.transformerFactories.bind(reference, factory);
     }
 
@@ -109,9 +123,13 @@ public class FactoryCache {
         this.transformerFactories.unbind(reference);
     }
 
-    @Reference(service = ProcessorFactory.class, cardinality = ReferenceCardinality.MULTIPLE,
-            policy = ReferencePolicy.DYNAMIC, updated = "bindProcessorFactory")
-    protected void bindProcessorFactory(final ServiceReference<ProcessorFactory> reference, final ProcessorFactory factory) {
+    @Reference(
+            service = ProcessorFactory.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            updated = "bindProcessorFactory")
+    protected void bindProcessorFactory(
+            final ServiceReference<ProcessorFactory> reference, final ProcessorFactory factory) {
         this.processorFactories.bind(reference, factory);
     }
 
@@ -126,7 +144,7 @@ public class FactoryCache {
      */
     public Generator getGenerator(final String type) {
         final GeneratorFactory factory = this.generatorFactories.getFactory(type);
-        if ( factory == null ) {
+        if (factory == null) {
             LOGGER.debug("Requested generator factory for type '{}' not found.", type);
             return null;
         }
@@ -140,7 +158,7 @@ public class FactoryCache {
      */
     public Serializer getSerializer(final String type) {
         final SerializerFactory factory = this.serializerFactories.getFactory(type);
-        if ( factory == null ) {
+        if (factory == null) {
             LOGGER.debug("Requested serializer factory for type '{}' not found.", type);
             return null;
         }
@@ -154,7 +172,7 @@ public class FactoryCache {
      */
     public Transformer getTransformer(final String type) {
         final TransformerFactory factory = this.transformerFactories.getFactory(type);
-        if ( factory == null ) {
+        if (factory == null) {
             LOGGER.debug("Requested transformer factory for type '{}' not found.", type);
             return null;
         }
@@ -168,7 +186,7 @@ public class FactoryCache {
      */
     public Processor getProcessor(final String type) {
         final ProcessorFactory factory = this.processorFactories.getFactory(type);
-        if ( factory == null ) {
+        if (factory == null) {
             LOGGER.debug("Requested processor factory for type '{}' not found.", type);
             return null;
         }
@@ -206,23 +224,23 @@ public class FactoryCache {
      * @return The transformer instances
      */
     Transformer[][] createTransformers(final TransformerFactory[][] factories) {
-        if ( factories == TransformerFactoryCache.EMPTY_DOUBLE_FACTORY_ARRAY ) {
+        if (factories == TransformerFactoryCache.EMPTY_DOUBLE_FACTORY_ARRAY) {
             return EMPTY_DOUBLE_ARRAY;
         }
         final Transformer[][] transformers = new Transformer[2][];
-        for(int arrayIndex = 0; arrayIndex < 2; arrayIndex++) {
+        for (int arrayIndex = 0; arrayIndex < 2; arrayIndex++) {
             int count = factories[arrayIndex].length;
-            for(final TransformerFactory factory : factories[arrayIndex]) {
-                if ( factory == null ) count--;
+            for (final TransformerFactory factory : factories[arrayIndex]) {
+                if (factory == null) count--;
             }
-            if ( count == 0 ) {
+            if (count == 0) {
                 transformers[arrayIndex] = EMPTY_ARRAY;
             } else {
                 transformers[arrayIndex] = new Transformer[count];
                 int tIndex = 0;
-                for(int i=0; i < factories[arrayIndex].length; i++) {
+                for (int i = 0; i < factories[arrayIndex].length; i++) {
                     final TransformerFactory factory = factories[arrayIndex][i];
-                    if ( factory != null ) {
+                    if (factory != null) {
                         transformers[arrayIndex][tIndex] = factory.createTransformer();
                         tIndex++;
                     }
@@ -240,37 +258,45 @@ public class FactoryCache {
 
         public final int order;
 
-        public TransformerFactoryEntry(final TransformerFactory factory, final ServiceReference<TransformerFactory> ref) {
+        public TransformerFactoryEntry(
+                final TransformerFactory factory, final ServiceReference<TransformerFactory> ref) {
             this.factory = factory;
             final Converter c = Converters.standardConverter();
             final String[] paths = c.convert(ref.getProperty(PROPERTY_PATHS)).to(String[].class);
-            final String[] extensions = c.convert(ref.getProperty(PROPERTY_EXTENSIONS)).to(String[].class);
-            final String[] contentTypes = c.convert(ref.getProperty(PROPERTY_CONTENT_TYPES)).to(String[].class);
-            final String[] resourceTypes = c.convert(ref.getProperty(PROPERTY_RESOURCE_TYPES)).to(String[].class);
-            final String[] selectors = c.convert(ref.getProperty(PROPERTY_SELECTORS)).to(String[].class);
-            final boolean processError = c.convert(ref.getProperty(PROPERTY_PROCESS_ERROR)).defaultValue(false).to(Boolean.class);
-            final boolean noCheckRequired = (paths == null || paths.length == 0) &&
-                                   (extensions == null || extensions.length == 0) &&
-                                   (contentTypes == null || contentTypes.length == 0) &&
-                                   (resourceTypes == null || resourceTypes.length == 0) &&
-                                   (selectors == null || selectors.length == 0) &&
-                                   !processError;
+            final String[] extensions =
+                    c.convert(ref.getProperty(PROPERTY_EXTENSIONS)).to(String[].class);
+            final String[] contentTypes =
+                    c.convert(ref.getProperty(PROPERTY_CONTENT_TYPES)).to(String[].class);
+            final String[] resourceTypes =
+                    c.convert(ref.getProperty(PROPERTY_RESOURCE_TYPES)).to(String[].class);
+            final String[] selectors =
+                    c.convert(ref.getProperty(PROPERTY_SELECTORS)).to(String[].class);
+            final boolean processError = c.convert(ref.getProperty(PROPERTY_PROCESS_ERROR))
+                    .defaultValue(false)
+                    .to(Boolean.class);
+            final boolean noCheckRequired = (paths == null || paths.length == 0)
+                    && (extensions == null || extensions.length == 0)
+                    && (contentTypes == null || contentTypes.length == 0)
+                    && (resourceTypes == null || resourceTypes.length == 0)
+                    && (selectors == null || selectors.length == 0)
+                    && !processError;
 
             int order = 0;
             final Object obj = ref.getProperty(Constants.SERVICE_RANKING);
             if (obj instanceof Integer) {
-                order = (Integer)obj;
+                order = (Integer) obj;
             }
             this.order = order;
-            if ( !noCheckRequired ) {
-                this.configuration = new ProcessorConfigurationImpl(contentTypes, paths, extensions, resourceTypes, selectors, order, processError);
+            if (!noCheckRequired) {
+                this.configuration = new ProcessorConfigurationImpl(
+                        contentTypes, paths, extensions, resourceTypes, selectors, order, processError);
             } else {
                 this.configuration = null;
             }
         }
 
         public boolean match(final ProcessingContext context) {
-            if ( configuration == null ) {
+            if (configuration == null) {
                 return true;
             }
             return configuration.match(context);

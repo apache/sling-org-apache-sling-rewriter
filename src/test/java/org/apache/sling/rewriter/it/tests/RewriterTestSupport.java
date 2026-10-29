@@ -46,9 +46,22 @@ public abstract class RewriterTestSupport extends TestSupport {
     private static final String OAK_VERSION = "1.74.0";
 
     private static final String[] OAK_ARTIFACTS = {
-        "oak-api", "oak-authorization-principalbased", "oak-blob", "oak-blob-plugins", "oak-commons",
-        "oak-core", "oak-core-spi", "oak-jackrabbit-api", "oak-jcr", "oak-lucene", "oak-query-spi",
-        "oak-security-spi", "oak-segment-tar", "oak-store-composite", "oak-store-document", "oak-store-spi"
+        "oak-api",
+        "oak-authorization-principalbased",
+        "oak-blob",
+        "oak-blob-plugins",
+        "oak-commons",
+        "oak-core",
+        "oak-core-spi",
+        "oak-jackrabbit-api",
+        "oak-jcr",
+        "oak-lucene",
+        "oak-query-spi",
+        "oak-security-spi",
+        "oak-segment-tar",
+        "oak-store-composite",
+        "oak-store-document",
+        "oak-store-spi"
     };
 
     @Inject
@@ -64,7 +77,8 @@ public abstract class RewriterTestSupport extends TestSupport {
     @Configuration
     public Option[] configuration() {
         // SPI Fly 1.3.8 embeds ASM 9.10.1, required for running on recent JDKs (25+)
-        SlingOptions.versionResolver.setVersion("org.apache.aries.spifly", "org.apache.aries.spifly.dynamic.framework.extension", "1.3.8");
+        SlingOptions.versionResolver.setVersion(
+                "org.apache.aries.spifly", "org.apache.aries.spifly.dynamic.framework.extension", "1.3.8");
         // Oak 1.74+ no longer uses Subject.getSubject(), which is unsupported on JDK 24+
         for (final String oakArtifact : OAK_ARTIFACTS) {
             SlingOptions.versionResolver.setVersion("org.apache.jackrabbit", oakArtifact, OAK_VERSION);
@@ -74,46 +88,50 @@ public abstract class RewriterTestSupport extends TestSupport {
         SlingOptions.versionResolver.setVersion("org.apache.commons", "commons-lang3", "3.17.0");
         SlingOptions.versionResolver.setVersion("org.apache.sling", "org.apache.sling.jcr.oak.server", "1.4.4");
         return options(
-            baseConfiguration(),
-            mavenBundle().groupId("org.apache.jackrabbit").artifactId("oak-shaded-guava").version(OAK_VERSION),
-            quickstart(),
-            // Sling Rewriter
-            testBundle("bundle.filename"),
-            slingCommonsHtml(),
-            factoryConfiguration("org.apache.sling.serviceusermapping.impl.ServiceUserMapperImpl.amended")
-                .put("user.mapping", new String[]{"org.apache.sling.rewriter=sling-readall"})
-                .asOption(),
-            factoryConfiguration("org.apache.sling.resource.presence.internal.ResourcePresenter")
-                .put("path", "/content/rewriter")
-                .asOption(),
-            factoryConfiguration("org.apache.sling.jcr.repoinit.RepositoryInitializer")
-                .put("scripts", new String[]{"set ACL for everyone\n  allow jcr:read on /\nend"})
-                .asOption(),
-            // testing
-            mavenBundle().groupId("org.jsoup").artifactId("jsoup").versionAsInProject(),
-            mavenBundle().groupId("org.osgi").artifactId("org.osgi.util.converter").versionAsInProject(),
-            mavenBundle().groupId("org.apache.commons").artifactId("commons-text").versionAsInProject(),
-            slingResourcePresence(),
-            junitBundles()
-        );
+                baseConfiguration(),
+                mavenBundle()
+                        .groupId("org.apache.jackrabbit")
+                        .artifactId("oak-shaded-guava")
+                        .version(OAK_VERSION),
+                quickstart(),
+                // Sling Rewriter
+                testBundle("bundle.filename"),
+                slingCommonsHtml(),
+                factoryConfiguration("org.apache.sling.serviceusermapping.impl.ServiceUserMapperImpl.amended")
+                        .put("user.mapping", new String[] {"org.apache.sling.rewriter=sling-readall"})
+                        .asOption(),
+                factoryConfiguration("org.apache.sling.resource.presence.internal.ResourcePresenter")
+                        .put("path", "/content/rewriter")
+                        .asOption(),
+                factoryConfiguration("org.apache.sling.jcr.repoinit.RepositoryInitializer")
+                        .put("scripts", new String[] {"set ACL for everyone\n  allow jcr:read on /\nend"})
+                        .asOption(),
+                // testing
+                mavenBundle().groupId("org.jsoup").artifactId("jsoup").versionAsInProject(),
+                mavenBundle()
+                        .groupId("org.osgi")
+                        .artifactId("org.osgi.util.converter")
+                        .versionAsInProject(),
+                mavenBundle()
+                        .groupId("org.apache.commons")
+                        .artifactId("commons-text")
+                        .versionAsInProject(),
+                slingResourcePresence(),
+                junitBundles());
     }
 
     @ProbeBuilder
     public TestProbeBuilder probeConfiguration(final TestProbeBuilder testProbeBuilder) {
-        testProbeBuilder.setHeader("Sling-Initial-Content",
-            "apps/esp;path:=/apps/esp;overwrite:=true;uninstall:=true" + "," +
-                "content;path:=/content;overwrite:=true;uninstall:=true"
-        );
+        testProbeBuilder.setHeader(
+                "Sling-Initial-Content",
+                "apps/esp;path:=/apps/esp;overwrite:=true;uninstall:=true" + ","
+                        + "content;path:=/content;overwrite:=true;uninstall:=true");
         return testProbeBuilder;
     }
 
     protected Option quickstart() {
         final int httpPort = findFreePort();
         final String workingDirectory = workingDirectory();
-        return composite(
-            slingQuickstartOakTar(workingDirectory, httpPort),
-            slingScriptingJavascript()
-        );
+        return composite(slingQuickstartOakTar(workingDirectory, httpPort), slingScriptingJavascript());
     }
-
 }

@@ -1,24 +1,22 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.sling.rewriter.impl;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -38,6 +36,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 public class FactoryCacheTest {
 
@@ -127,12 +129,12 @@ public class FactoryCacheTest {
         Mockito.when(secondFactory.createTransformer()).thenReturn(second);
         final Dictionary<String, Object> firstProperties = factoryProperties("test", -10);
         firstProperties.put(FactoryCache.PROPERTY_MODE, "global");
-        final ServiceRegistration<TransformerFactory> firstRegistration = context.bundleContext()
-                .registerService(TransformerFactory.class, firstFactory, firstProperties);
+        final ServiceRegistration<TransformerFactory> firstRegistration =
+                context.bundleContext().registerService(TransformerFactory.class, firstFactory, firstProperties);
         final Dictionary<String, Object> secondProperties = factoryProperties(null, -20);
         secondProperties.put(FactoryCache.PROPERTY_MODE, "GLOBAL");
-        final ServiceRegistration<TransformerFactory> secondRegistration = context.bundleContext()
-                .registerService(TransformerFactory.class, secondFactory, secondProperties);
+        final ServiceRegistration<TransformerFactory> secondRegistration =
+                context.bundleContext().registerService(TransformerFactory.class, secondFactory, secondProperties);
 
         assertSame(first, cache.getTransformer("test"));
         Transformer[][] result = cache.getGlobalTransformers(null);
@@ -220,7 +222,9 @@ public class FactoryCacheTest {
         assertEquals(0, result[1].length);
 
         // first empty second t1
-        final TransformerFactory[][] factories = new TransformerFactory[][] { TransformerFactoryCache.EMPTY_FACTORY_ARRAY, new TransformerFactory[] { tf1 } };
+        final TransformerFactory[][] factories =
+                new TransformerFactory[][] {TransformerFactoryCache.EMPTY_FACTORY_ARRAY, new TransformerFactory[] {tf1}
+                };
         result = cache.createTransformers(factories);
         assertEquals(2, result.length);
         assertEquals(0, result[0].length);
@@ -228,7 +232,9 @@ public class FactoryCacheTest {
         assertEquals(t1, result[1][0]);
 
         // first t1 second empty
-        final TransformerFactory[][] factories2 = new TransformerFactory[][] { new TransformerFactory[] { tf1 }, TransformerFactoryCache.EMPTY_FACTORY_ARRAY };
+        final TransformerFactory[][] factories2 =
+                new TransformerFactory[][] {new TransformerFactory[] {tf1}, TransformerFactoryCache.EMPTY_FACTORY_ARRAY
+                };
         result = cache.createTransformers(factories2);
         assertEquals(2, result.length);
         assertEquals(1, result[0].length);
@@ -236,7 +242,8 @@ public class FactoryCacheTest {
         assertEquals(t1, result[0][0]);
 
         // first t1 second t1
-        final TransformerFactory[][] factories3 = new TransformerFactory[][] { new TransformerFactory[] { tf1 }, new TransformerFactory[] { tf1 } };
+        final TransformerFactory[][] factories3 =
+                new TransformerFactory[][] {new TransformerFactory[] {tf1}, new TransformerFactory[] {tf1}};
         result = cache.createTransformers(factories3);
         assertEquals(2, result.length);
         assertEquals(1, result[0].length);
@@ -250,7 +257,8 @@ public class FactoryCacheTest {
         Mockito.when(tf2.createTransformer()).thenReturn(t2);
 
         // first t1 and t2, second t2 and t1
-        final TransformerFactory[][] factories4 = new TransformerFactory[][] { new TransformerFactory[] { tf1, tf2 }, new TransformerFactory[] { tf2, tf1 } };
+        final TransformerFactory[][] factories4 =
+                new TransformerFactory[][] {new TransformerFactory[] {tf1, tf2}, new TransformerFactory[] {tf2, tf1}};
         result = cache.createTransformers(factories4);
         assertEquals(2, result.length);
         assertEquals(2, result[0].length);
@@ -261,7 +269,8 @@ public class FactoryCacheTest {
         assertEquals(t1, result[1][1]);
 
         // first t1 and null, second null and t1
-        final TransformerFactory[][] factories5 = new TransformerFactory[][] { new TransformerFactory[] { tf1, null }, new TransformerFactory[] { null, tf1 } };
+        final TransformerFactory[][] factories5 =
+                new TransformerFactory[][] {new TransformerFactory[] {tf1, null}, new TransformerFactory[] {null, tf1}};
         result = cache.createTransformers(factories5);
         assertEquals(2, result.length);
         assertEquals(1, result[0].length);

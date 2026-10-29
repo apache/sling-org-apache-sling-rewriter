@@ -66,7 +66,8 @@ public class EmojiIT extends RewriterTestSupport {
     @Test
     public void testContent() throws IOException {
         final Element content = document.getElementById("content");
-        assertEquals("\u2602\uD83D\uDE03 \uD83C\uDF40 \uD83C\uDF40 \uD83C\uDF40 \uD83D\uDE01 \uD83C\uDF40\uD83C\uDF40", content.text());
+        assertEquals(
+                "\u2602\uD83D\uDE03 \uD83C\uDF40 \uD83C\uDF40 \uD83C\uDF40 \uD83D\uDE01 \uD83C\uDF40\uD83C\uDF40",
+                content.text());
     }
-
 }
